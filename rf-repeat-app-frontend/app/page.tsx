@@ -1,9 +1,21 @@
+"use client";
+
+import { useEffect, useState } from "react";
+// 一時的にRailsのヘルスチェックAPIを叩いて接続確認するだけのコード
 export default function Home() {
+  const [status, setStatus] = useState("loading");
+
+  useEffect(() => {
+    fetch("http://localhost:3001/api/v1/health")
+      .then((res) => res.json())
+      .then((data) => setStatus(data.status))
+      .catch(() => setStatus("error"));
+  }, []);
+
   return (
-    <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-      <h1 className="text-5xl font-bold tracking-tight text-gray-900 dark:text-white sm:text-[5rem]">
-        Hello, World!
-      </h1>
-    </main>
+    <div>
+      <h1>API Connection Test</h1>
+      <p>Status: {status}</p>
+    </div>
   );
 }
