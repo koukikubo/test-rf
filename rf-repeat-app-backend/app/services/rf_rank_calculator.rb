@@ -46,7 +46,7 @@ class RfRankCalculator
     rf_score.update!(
       visit_count: visit_count,
       last_visit_at: last_visit_at,
-      rf_rank: rank
+      rank: rank
     )
   end
 end
