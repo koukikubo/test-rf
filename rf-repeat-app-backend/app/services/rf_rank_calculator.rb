@@ -17,8 +17,8 @@ class RfRankCalculator
 
   # visit_count（来店回数）, last_visit_at（最終来店日）
   def self.calculate_rank(visit_count, last_visit_at)
-    # 最終来店日が存在しない場合は、来店回数が0であってもランクE
-    return "E" if visit_count == 0
+    # 最終来店日が存在しない場合は、ランクEとする
+    return "E" if last_visit_at.nil?
 
     # 最後の来店から何年経ったかを計算
     years_since_last = (Time.current - last_visit_at) / 1.year
