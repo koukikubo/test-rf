@@ -108,8 +108,6 @@ GitHub Issues をベースに開発を進めています。
 - #2 ER設計
 - #3 DB作成
 - #4 seed
-
-### 実装予定
 - #5 RFロジック
 - #6 RF保存
 - #7 RFランキングAPI
@@ -117,7 +115,7 @@ GitHub Issues をベースに開発を進めています。
 - #9 RF集計画面
 - #12 RSpec
 
-### CRM拡張
+### CRM拡張予定
 - #13 visitsテーブル
 - #14 tablesテーブル
 - #15 tags
