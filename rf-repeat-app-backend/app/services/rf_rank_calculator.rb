@@ -1,19 +1,21 @@
 class RfRankCalculator
-
+  # 一人ずつ更新関数
   def self.call
-    # 顧客を1人ずつ処理
     Customer.find_each do |customer|
-      reservations = Reservation.where(customer_id: customer.id)
-      visit_count = reservations.count
-      last_visit_at = reservations.maximum(:visited_at)
-      # visit_countとlast_visit_atからランクを計算
-      rank = calculate_rank(visit_count, last_visit_at)
-      # 顧客のrf_scoreを更新
-      update_rf_score(customer, visit_count, last_visit_at, rank)
-
+      update_customer(customer)
     end
   end
-
+  
+  # 全体更新関数
+  def self.update_customer(customer)
+    reservations = Reservation.where(customer_id: customer.id)
+    visit_count = reservations.count
+    last_visit_at = reservations.maximum(:visited_at)
+    # visit_countとlast_visit_atからランクを計算
+    rank = calculate_rank(visit_count, last_visit_at)
+    # 顧客のrf_scoreを更新
+    update_rf_score(customer, visit_count, last_visit_at, rank)
+  end
 
   # visit_count（来店回数）, last_visit_at（最終来店日）
   def self.calculate_rank(visit_count, last_visit_at)
