@@ -1,6 +1,6 @@
-class ReservationsController < ApplicationController
+class Api::V1::ReservationsController < ApplicationController
   def index
-    reservations = Reservation.order(:id)
+    reservations = Reservation.order(visited_at: :desc, customer_id: :asc)
     render json: reservations, status: :ok
   end
 
