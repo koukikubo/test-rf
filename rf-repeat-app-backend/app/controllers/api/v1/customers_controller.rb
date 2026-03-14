@@ -1,4 +1,9 @@
 class Api::V1::CustomersController < ApplicationController
+
+  def index
+    customers = Customer.order(:id)
+    render json: customers, status: :ok
+  end
   def create
     customer = Customer.new(customer_params)
 
