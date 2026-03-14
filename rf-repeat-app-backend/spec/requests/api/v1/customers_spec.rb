@@ -26,4 +26,20 @@ RSpec.describe "Api::V1::Customers", type: :request do
       expect(json["errors"]).to include("Nameを入力してください")
     end
   end
+  describe "GET /api/v1/customers" do
+    let!(:customer1) { Customer.create!(name: "大阪 一太郎") }
+    let!(:customer2) { Customer.create!(name: "大阪 勘太郎") }
+
+    it "顧客一覧を取得できる" do
+      get "/api/v1/customers"
+
+      expect(response).to have_http_status(:ok)
+
+      json = JSON.parse(response.body)
+
+      expect(json).to be_an(Array)
+      names = json.map { |customer| customer["name"] }
+      expect(names).to include("大阪 一太郎", "大阪 勘太郎")
+    end
+  end
 end
