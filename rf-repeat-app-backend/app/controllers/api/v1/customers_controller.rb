@@ -13,6 +13,11 @@ class Api::V1::CustomersController < ApplicationController
       render json: { errors: customer.errors.full_messages }, status: :unprocessable_entity
     end
   end
+  
+  def show
+    customer = Customer.find(params[:id])
+    render json: customer, status: :ok
+  end
 
   private
   def customer_params
