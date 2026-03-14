@@ -3,6 +3,8 @@ class Reservation < ApplicationRecord
   # 予約が作成された後にRFスコア更新ジョブをキューに追加するためのコールバック
   after_commit :enqueue_rf_score_update, on: :create
 
+  validates :customer, :visited_at, presence: true
+
   private
   # 予約が作成された後にRFスコア更新ジョブをキューに追加する
   def enqueue_rf_score_update

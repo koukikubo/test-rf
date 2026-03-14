@@ -5,6 +5,7 @@ Rails.application.routes.draw do
 
       resources :rf_scores, only: [:index]
       resources :customers, only: [:create, :index] 
+      resources :reservations, only: [:create, :index, :show]
       
     end
   end
