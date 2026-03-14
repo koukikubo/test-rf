@@ -4,7 +4,7 @@ Rails.application.routes.draw do
       get "health", to: "health#index"
 
       resources :rf_scores, only: [:index]
-      resources :customers, only: [:create] 
+      resources :customers, only: [:create, :index] 
       
     end
   end
