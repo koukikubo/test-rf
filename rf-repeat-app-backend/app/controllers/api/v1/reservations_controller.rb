@@ -1,7 +1,17 @@
 class Api::V1::ReservationsController < ApplicationController
   def index
-    reservations = Reservation.order(visited_at: :desc, customer_id: :asc)
-    render json: reservations, status: :ok
+    reservations = Reservation.includes(:customer).order(visited_at: :desc)
+
+    render json: reservations.map { |reservation|
+      {
+        id: reservation.id,
+        visited_at: reservation.visited_at,
+        customer: {
+          id: reservation.customer.id,
+          name: reservation.customer.name
+        }
+      }
+    }, status: :ok
   end
 
   def create
