@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 type Customer = {
   id: number;
   name: string;
@@ -53,7 +55,9 @@ export default async function CustomersPage() {
                   {customer.id}
                 </td>
                 <td className="border border-gray-300 px-4 py-2">
-                  {customer.name}
+                  <Link href={`/customers/${customer.id}`}>
+                    {customer.name}
+                  </Link>{" "}
                 </td>
               </tr>
             ))}
