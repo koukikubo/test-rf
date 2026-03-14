@@ -13,10 +13,25 @@ class Api::V1::CustomersController < ApplicationController
       render json: { errors: customer.errors.full_messages }, status: :unprocessable_entity
     end
   end
-  
+
   def show
-    customer = Customer.find(params[:id])
-    render json: customer, status: :ok
+    customer = Customer.includes(:rf_score, :reservations).find(params[:id])
+
+    render json: {
+      id: customer.id,
+      name: customer.name,
+      rf_score: customer.rf_score && {
+        visit_count: customer.rf_score.visit_count,
+        last_visit_at: customer.rf_score.last_visit_at,
+        rank: customer.rf_score.rank
+      },
+      reservations: customer.reservations.order(visited_at: :desc).map { |reservation|
+        {
+          id: reservation.id,
+          visited_at: reservation.visited_at
+        }
+      }
+    }, status: :ok
   end
 
   private
