@@ -42,6 +42,25 @@ RSpec.describe "Api::V1::Customers", type: :request do
       names = json.map { |customer| customer["name"] }
       expect(names).to include("大阪 一太郎", "大阪 勘太郎")
     end
+
+    it "ids を指定した場合は対象顧客だけを取得できる" do
+      customer3 = Customer.create!(name: "東京 三太郎")
+
+      get "/api/v1/customers", params: { ids: "#{customer1.id},#{customer3.id}" }
+
+      expect(response).to have_http_status(:ok)
+
+      json = JSON.parse(response.body)
+
+      expect(json).to be_an(Array)
+
+      ids = json.map { |customer| customer["id"] }
+      names = json.map { |customer| customer["name"] }
+
+      expect(ids).to contain_exactly(customer1.id, customer3.id)
+      expect(names).to contain_exactly("大阪 一太郎", "東京 三太郎")
+      expect(ids).not_to include(customer2.id)
+    end
   end
   # 正常系-顧客詳細APIのリクエストテスト
   describe "GET /api/v1/customers/:id" do
