@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 type MatrixRow = {
   key: string;
   label: string;
@@ -91,7 +93,12 @@ export default async function RfmMatricesPage() {
                       key={`${row.key}-${col.key}`}
                       className="border border-gray-300 px-4 py-2"
                     >
-                      {cell?.count ?? 0}
+                      <Link
+                        href={`/rfm-analysis/customers?ids=${(cell?.customer_ids ?? []).join(",")}&row=${row.key}&col=${col.key}`}
+                        className="underline"
+                      >
+                        {cell?.count ?? 0}
+                      </Link>
                     </td>
                   );
                 })}
