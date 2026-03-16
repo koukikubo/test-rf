@@ -1,0 +1,105 @@
+type MatrixRow = {
+  key: string;
+  label: string;
+};
+
+type MatrixCol = {
+  key: string;
+  label: string;
+};
+
+type MatrixCell = {
+  row_key: string;
+  row_label: string;
+  col_key: string;
+  col_label: string;
+  count: number;
+  customer_ids: number[];
+};
+
+type RfmMatrixResponse = {
+  rows: MatrixRow[];
+  cols: MatrixCol[];
+  cells: MatrixCell[];
+};
+
+async function getRfmMatrix(): Promise<RfmMatrixResponse> {
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+  if (!baseUrl) {
+    throw new Error("NEXT_PUBLIC_API_BASE_URL が設定されていません");
+  }
+
+  const res = await fetch(`${baseUrl}/api/v1/rfm_matrices`, {
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    throw new Error("RFMマトリクスの取得に失敗しました");
+  }
+
+  return res.json();
+}
+
+function findCell(
+  cells: MatrixCell[],
+  rowKey: string,
+  colKey: string,
+): MatrixCell | undefined {
+  return cells.find(
+    (cell) => cell.row_key === rowKey && cell.col_key === colKey,
+  );
+}
+
+export default async function RfmMatricesPage() {
+  const matrix = await getRfmMatrix();
+
+  return (
+    <main className="p-6">
+      <h1 className="text-2xl font-bold mb-6">RFMマトリクス</h1>
+
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse border border-gray-300 text-sm">
+          <thead>
+            <tr>
+              <th className="border border-gray-300 px-4 py-2 text-left">
+                来店期間＼来店回数
+              </th>
+              {matrix.cols.map((col) => (
+                <th
+                  key={col.key}
+                  className="border border-gray-300 px-4 py-2 text-left"
+                >
+                  {col.label}
+                </th>
+              ))}
+            </tr>
+          </thead>
+
+          <tbody>
+            {matrix.rows.map((row) => (
+              <tr key={row.key}>
+                <th className="border border-gray-300 px-4 py-2 text-left">
+                  {row.label}
+                </th>
+
+                {matrix.cols.map((col) => {
+                  const cell = findCell(matrix.cells, row.key, col.key);
+
+                  return (
+                    <td
+                      key={`${row.key}-${col.key}`}
+                      className="border border-gray-300 px-4 py-2"
+                    >
+                      {cell?.count ?? 0}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </main>
+  );
+}
