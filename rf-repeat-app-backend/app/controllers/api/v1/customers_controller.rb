@@ -2,8 +2,15 @@ class Api::V1::CustomersController < ApplicationController
 
   def index
     customers = Customer.order(:id)
+    # クエリパラメータで複数のIDを指定できるようにする
+    if params[:ids].present?
+      ids = params[:ids].split(",").map(&:to_i)
+      customers = customers.where(id: ids)
+    end
+
     render json: customers, status: :ok
   end
+
   def create
     customer = Customer.new(customer_params)
 
