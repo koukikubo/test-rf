@@ -6,7 +6,7 @@ Rails.application.routes.draw do
       resources :rf_scores, only: [:index]
       resources :customers, only: [:create, :index, :show] 
       resources :reservations, only: [:create, :index, :show]
-      
+      resources :rfm_matrices, only: [:index]
     end
   end
 end
