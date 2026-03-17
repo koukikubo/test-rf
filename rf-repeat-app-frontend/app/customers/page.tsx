@@ -1,4 +1,4 @@
-import Link from "next/link";
+import CustomerTable from "@/components/customers/customer-table";
 
 type Customer = {
   id: number;
@@ -31,39 +31,7 @@ export default async function CustomersPage() {
   return (
     <main className="p-6">
       <h1 className="text-2xl font-bold mb-6">顧客一覧</h1>
-
-      <div className="mb-4">
-        <a href="/customers/new" className="underline">
-          顧客登録ページへ
-        </a>
-      </div>
-
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse border border-gray-300 text-sm">
-          <thead>
-            <tr>
-              <th className="border border-gray-300 px-4 py-2 text-left">ID</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">
-                顧客名
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {customers.map((customer) => (
-              <tr key={customer.id}>
-                <td className="border border-gray-300 px-4 py-2">
-                  {customer.id}
-                </td>
-                <td className="border border-gray-300 px-4 py-2">
-                  <Link href={`/customers/${customer.id}`}>
-                    {customer.name}
-                  </Link>{" "}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <CustomerTable customers={customers} />
     </main>
   );
 }

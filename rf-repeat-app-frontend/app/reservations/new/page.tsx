@@ -3,7 +3,7 @@ import ReservationForm from "@/components/customers/reservations/reservation-for
 export default async function NewReservationPage() {
   return (
     <main>
-      <h1>New Reservation</h1>
+      <h1>新規予約登録</h1>
       <ReservationForm />
     </main>
   );

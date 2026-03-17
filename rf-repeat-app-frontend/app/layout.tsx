@@ -9,7 +9,7 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body>
-        <header className="border-b p-4">
+        <header className="border-b bg-gray-50 p-4">
           <div className="container mx-auto flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <Link href="/" className="font-bold">
               RFミニアプリ

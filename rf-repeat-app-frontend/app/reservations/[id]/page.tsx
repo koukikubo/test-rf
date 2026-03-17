@@ -1,3 +1,6 @@
+import ReservationBasicInfo from "@/components/reservations/reservation-basic-info";
+import ReservationMetaInfo from "@/components/reservations/reservation-meta-info";
+
 type ReservationDetail = {
   id: number;
   customer_id: number;
@@ -24,11 +27,6 @@ async function getReservation(id: string): Promise<ReservationDetail> {
   return res.json();
 }
 
-function formatDate(dateString: string) {
-  const date = new Date(dateString);
-  return date.toLocaleString("ja-JP");
-}
-
 export default async function ReservationDetailPage({
   params,
 }: {
@@ -39,22 +37,18 @@ export default async function ReservationDetailPage({
 
   return (
     <main className="p-6 space-y-6">
-      <section>
-        <h1 className="text-2xl font-bold">予約詳細</h1>
-      </section>
+      <h1 className="text-2xl font-bold">予約詳細</h1>
 
-      <section className="space-y-2">
-        <h2 className="text-lg font-semibold">基本情報</h2>
-        <p>予約ID: {reservation.id}</p>
-        <p>顧客ID: {reservation.customer_id}</p>
-        <p>来店日時: {formatDate(reservation.visited_at)}</p>
-      </section>
+      <ReservationBasicInfo
+        id={reservation.id}
+        customerId={reservation.customer_id}
+        visitedAt={reservation.visited_at}
+      />
 
-      <section className="space-y-2">
-        <h2 className="text-lg font-semibold">記録情報</h2>
-        <p>作成日時: {formatDate(reservation.created_at)}</p>
-        <p>更新日時: {formatDate(reservation.updated_at)}</p>
-      </section>
+      <ReservationMetaInfo
+        createdAt={reservation.created_at}
+        updatedAt={reservation.updated_at}
+      />
     </main>
   );
 }
