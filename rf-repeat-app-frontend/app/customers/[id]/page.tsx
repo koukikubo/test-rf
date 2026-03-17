@@ -1,3 +1,7 @@
+import CustomerBasicInfo from "@/components/customers/customer-basic-info";
+import CustomerReservationsTable from "@/components/customers/customer-reservations-table";
+import CustomerRfInfo from "@/components/customers/customer-rf-info";
+
 type Reservation = {
   id: number;
   visited_at: string;
@@ -34,13 +38,6 @@ async function getCustomer(id: string): Promise<CustomerDetail> {
   return res.json();
 }
 
-function formatDate(dateString: string | null) {
-  if (!dateString) return "未設定";
-
-  const date = new Date(dateString);
-  return date.toLocaleString("ja-JP");
-}
-
 export default async function CustomerDetailPage({
   params,
 }: {
@@ -51,57 +48,13 @@ export default async function CustomerDetailPage({
 
   return (
     <main className="p-6 space-y-6">
-      <section>
-        <h1 className="text-2xl font-bold">顧客詳細</h1>
-      </section>
+      <h1 className="text-2xl font-bold">顧客詳細</h1>
 
-      <section className="space-y-2">
-        <h2 className="text-lg font-semibold">基本情報</h2>
-        <p>顧客ID: {customer.id}</p>
-        <p>顧客名: {customer.name}</p>
-      </section>
+      <CustomerBasicInfo id={customer.id} name={customer.name} />
 
-      <section className="space-y-2">
-        <h2 className="text-lg font-semibold">RF情報</h2>
-        <p>来店回数: {customer.rf_score?.visit_count ?? 0}</p>
-        <p>
-          最終来店日: {formatDate(customer.rf_score?.last_visit_at ?? null)}
-        </p>
-        <p>ランク: {customer.rf_score?.rank ?? "未設定"}</p>
-      </section>
+      <CustomerRfInfo rfScore={customer.rf_score} />
 
-      <section className="space-y-2">
-        <h2 className="text-lg font-semibold">予約履歴</h2>
-
-        {customer.reservations.length === 0 ? (
-          <p>予約履歴はありません</p>
-        ) : (
-          <table className="w-full border-collapse border border-gray-300 text-sm">
-            <thead>
-              <tr>
-                <th className="border border-gray-300 px-4 py-2 text-left">
-                  予約ID
-                </th>
-                <th className="border border-gray-300 px-4 py-2 text-left">
-                  来店日時
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {customer.reservations.map((reservation) => (
-                <tr key={reservation.id}>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {reservation.id}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {formatDate(reservation.visited_at)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </section>
+      <CustomerReservationsTable reservations={customer.reservations} />
     </main>
   );
 }
