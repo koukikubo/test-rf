@@ -1,0 +1,2 @@
+class RfMaster < ApplicationRecord
+end

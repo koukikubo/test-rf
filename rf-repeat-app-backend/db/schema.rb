@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_03_09_105516) do
+ActiveRecord::Schema[7.2].define(version: 2026_03_17_110722) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -26,6 +26,19 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_09_105516) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["customer_id"], name: "index_reservations_on_customer_id"
+  end
+
+  create_table "rf_masters", force: :cascade do |t|
+    t.string "rank", null: false
+    t.integer "min_visit_count", null: false
+    t.integer "max_visit_count"
+    t.integer "min_days_since_last_visit", null: false
+    t.integer "max_days_since_last_visit"
+    t.integer "position", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["position"], name: "index_rf_masters_on_position"
+    t.index ["rank"], name: "index_rf_masters_on_rank", unique: true
   end
 
   create_table "rf_scores", force: :cascade do |t|
