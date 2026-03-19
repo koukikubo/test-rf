@@ -22,6 +22,7 @@ export default function RootLayout({
               <Link href="/reservations/new">予約登録</Link>
               <Link href="/rf-ranking">RFランキング</Link>
               <Link href="/rfm-analysis">RFM分析表</Link>
+              <Link href="/setting">設定</Link>
             </nav>
           </div>
         </header>
