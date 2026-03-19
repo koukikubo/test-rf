@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_03_17_110722) do
+ActiveRecord::Schema[7.2].define(version: 2026_03_19_095430) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -37,6 +37,8 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_17_110722) do
     t.integer "position", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "aggregation_period_days", default: 3650, null: false
+    t.integer "target_period_days", null: false
     t.index ["position"], name: "index_rf_masters_on_position"
     t.index ["rank"], name: "index_rf_masters_on_rank", unique: true
   end
