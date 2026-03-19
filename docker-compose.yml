@@ -4,7 +4,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: rf_development
+      POSTGRES_DB: rf_repeat_app_backend_development
     ports:
       - "5432:5432"
     volumes:
@@ -19,7 +19,7 @@ services:
     ports:
       - "3001:3001"
     environment:
-      DATABASE_URL: postgres://postgres:password@db:5432/rf_development
+      DATABASE_URL: postgres://postgres:password@db:5432/rf_repeat_app_backend_development
     depends_on:
       - db
     command: bash -c "rm -f tmp/pids/server.pid && bin/rails s -p 3001 -b 0.0.0.0"
