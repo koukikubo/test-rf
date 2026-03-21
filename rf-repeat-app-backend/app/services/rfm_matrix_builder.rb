@@ -1,15 +1,24 @@
 class RfmMatrixBuilder
   # 来店日からの経過期間の区分を定義(縦軸)
-  ROWS = [ { key: "recent", label: "1年以内" },
-          { key: "middle", label: "1年以上3年以内" },
-          { key: "old", label: "3年以上" } 
-          ].freeze
+  ROWS = [
+    { key: "recent", label: "1年以内" },
+    { key: "middle", label: "1年以上3年以内" },
+    { key: "old", label: "3年以上5年以内" },
+    { key: "inactive", label: "5年以上10年以内" },
+    { key: "out_of_scope", label: "対象外" }
+  ].freeze
+
   # 来店回数の区分を定義(横軸)
-  COLS = [ { key: "very_high", label: "20回以上" },
-            { key: "high", label: "10回以上" },
-            { key: "middle", label: "5回以上" },
-            { key: "low", label: "5回未満" }
-            ].freeze      
+  COLS = [
+    { key: "A", label: "A" },
+    { key: "B", label: "B" },
+    { key: "C", label: "C" },
+    { key: "D", label: "D" },
+    { key: "E", label: "E" },
+    { key: "Z", label: "Z" },
+    { key: "OUT", label: "G(集計期間対象外顧客)" }
+  ].freeze
+
   # クラスメソッドとして呼び出すためのエントリーポイント
   def self.call
     new.call
@@ -23,7 +32,7 @@ class RfmMatrixBuilder
     # RfScoreのレコードを一つずつ処理して、対応するセルのカウントを増やす
     scores.find_each do |score|
       row_key = row_key_for(score.last_visit_at)
-      col_key = col_key_for(score.visit_count)
+      col_key = col_key_for(score.rank)
       # 行と列のキーが有効な場合にのみセルのカウントを増やす
       next unless row_key && col_key
       # セルのカウントを増やし、顧客IDを追加
@@ -54,7 +63,7 @@ class RfmMatrixBuilder
   end
   # 来店日からの経過期間の区分を決定する関数
   def row_key_for(last_visit_at)
-    return "old" if last_visit_at.nil?
+    return "out_of_scope" if last_visit_at.nil?
     # 来店日からの経過日数を計算
     days = (Time.current.to_date - last_visit_at.to_date).to_i
     # 経過日数に基づいて行のキーを決定
@@ -62,17 +71,19 @@ class RfmMatrixBuilder
       "recent"
     elsif days <= 1095
       "middle"
-    else
+    elsif days <= 1825
       "old"
+    elsif days <= 3650
+      "inactive"
+    else
+      "out_of_scope"
     end
   end
   # 来店回数の区分を決定する関数
-  def col_key_for(visit_count)
-    case visit_count
-    when 20.. then "very_high"
-    when 10...20 then "high"
-    when 5...10 then "middle"
-    else "low"
-    end
+  def col_key_for(rank)
+    return nil if rank.blank?
+    # RfMasterのrankに基づいて列のキーを決定
+    COLS.any? { |col| col[:key] == rank } ? rank : nil
   end
 end
+    
