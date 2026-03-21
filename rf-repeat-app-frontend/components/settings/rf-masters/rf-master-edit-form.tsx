@@ -31,14 +31,35 @@ type FormData = {
   rank: string;
   min_visit_count: string;
   max_visit_count: string;
-  aggregation_period_days: string;
-  target_period_days: string;
   position: string;
 };
 
 type Props = {
   rfMaster: RfMaster;
 };
+
+function rankPeriodLabel(rank: string): string {
+  switch (rank) {
+    case "A":
+    case "B":
+    case "E":
+      return "直近1年以内";
+    case "C":
+      return "A・B・D・E・Z・対象外以外";
+    case "D":
+      return "3〜5年以内";
+    case "Z":
+      return "5年以上10年以内";
+    case "OUT":
+      return "集計期間対象外";
+    default:
+      return "未設定";
+  }
+}
+// ランクに応じて来店回数の入力欄を有効/無効にする関数
+function isCountEditable(rank: string): boolean {
+  return ["A", "B", "E"].includes(rank);
+}
 
 export default function RfMasterEditForm({ rfMaster }: Props) {
   const router = useRouter();
@@ -48,8 +69,6 @@ export default function RfMasterEditForm({ rfMaster }: Props) {
     min_visit_count: String(rfMaster.min_visit_count),
     max_visit_count:
       rfMaster.max_visit_count === null ? "" : String(rfMaster.max_visit_count),
-    aggregation_period_days: String(rfMaster.aggregation_period_days),
-    target_period_days: String(rfMaster.target_period_days),
     position: String(rfMaster.position),
   });
 
@@ -65,7 +84,60 @@ export default function RfMasterEditForm({ rfMaster }: Props) {
     }));
   }
 
+  function validateForm(): string[] {
+    const validationErrors: string[] = [];
+    const editable = isCountEditable(formData.rank);
+
+    const minVisit =
+      formData.min_visit_count === "" ? null : Number(formData.min_visit_count);
+    const maxVisit =
+      formData.max_visit_count === "" ? null : Number(formData.max_visit_count);
+    const position =
+      formData.position === "" ? null : Number(formData.position);
+
+    if (minVisit === null || Number.isNaN(minVisit)) {
+      validationErrors.push("最小来店回数を正しく入力してください。");
+    }
+
+    if (maxVisit !== null && Number.isNaN(maxVisit)) {
+      validationErrors.push("最大来店回数を正しく入力してください。");
+    }
+
+    if (minVisit !== null && minVisit < 0) {
+      validationErrors.push("最小来店回数は0以上で入力してください。");
+    }
+
+    if (maxVisit !== null && maxVisit < 0) {
+      validationErrors.push("最大来店回数は0以上で入力してください。");
+    }
+
+    if (minVisit !== null && maxVisit !== null && minVisit > maxVisit) {
+      validationErrors.push("最小来店回数は最大来店回数以下にしてください。");
+    }
+
+    if (position === null || Number.isNaN(position)) {
+      validationErrors.push("表示順を正しく入力してください。");
+    }
+
+    if (position !== null && position < 0) {
+      validationErrors.push("表示順は0以上で入力してください。");
+    }
+
+    if (!editable) {
+      return validationErrors;
+    }
+
+    return validationErrors;
+  }
+
   async function handleUpdate() {
+    const validationErrors = validateForm();
+
+    if (validationErrors.length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
     setErrors([]);
     setIsSubmitting(true);
 
@@ -79,14 +151,14 @@ export default function RfMasterEditForm({ rfMaster }: Props) {
 
     const payload = {
       rf_master: {
-        rank: formData.rank,
-        min_visit_count: Number(formData.min_visit_count),
+        min_visit_count:
+          formData.min_visit_count === ""
+            ? null
+            : Number(formData.min_visit_count),
         max_visit_count:
           formData.max_visit_count === ""
             ? null
             : Number(formData.max_visit_count),
-        aggregation_period_days: Number(formData.aggregation_period_days),
-        target_period_days: Number(formData.target_period_days),
         position: Number(formData.position),
       },
     };
@@ -138,54 +210,51 @@ export default function RfMasterEditForm({ rfMaster }: Props) {
         />
       </div>
       <div className="space-y-2">
-        <label htmlFor="aggregation_period_days">集計期間（日数）</label>
-        <Input
-          id="aggregation_period_days"
-          name="aggregation_period_days"
-          value={formData.aggregation_period_days}
-          onChange={handleChange}
-          placeholder="大前提としてデフォルトでは集計期間を10年としています。"
-        />
+        <p className="text-sm font-medium">集計対象期間</p>
+        <div className="rounded border px-3 py-2 text-sm bg-muted">10年</div>
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="target_period_days">判定対象期間（日数）</label>
-        <Input
-          id="target_period_days"
-          name="target_period_days"
-          value={formData.target_period_days}
-          onChange={handleChange}
-          placeholder="例）直近1年以内の顧客をランクAとする場合は365を入力"
-        />
+        <div className="space-y-2">
+          <p className="text-sm font-medium">判定対象期間</p>
+          <div className="rounded border px-3 py-2 text-sm bg-muted">
+            {rankPeriodLabel(formData.rank)}
+          </div>
+        </div>
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="min_visit_count">最小来店回数</label>
+        <label htmlFor="min_visit_count">来店回数（以上）</label>
         <Input
           id="min_visit_count"
           name="min_visit_count"
+          type="number"
           value={formData.min_visit_count}
           onChange={handleChange}
-          placeholder="例）5"
+          placeholder="例）8"
         />
       </div>
+
       <div className="space-y-2">
         <label htmlFor="max_visit_count">
-          最大来店回数（未入力の場合は上限なし）
+          来店回数（以下）※未入力なら上限なし
         </label>
         <Input
           id="max_visit_count"
           name="max_visit_count"
+          type="number"
           value={formData.max_visit_count}
           onChange={handleChange}
-          placeholder="例）10"
+          placeholder="例）11"
         />
       </div>
+
       <div className="space-y-2">
         <label htmlFor="position">表示順</label>
         <Input
           id="position"
           name="position"
+          type="number"
           value={formData.position}
           onChange={handleChange}
           placeholder="例）1（数値が小さいほど上位に表示される）"
@@ -195,10 +264,6 @@ export default function RfMasterEditForm({ rfMaster }: Props) {
       <div className="rounded border p-3 text-sm">
         {buildRfDescription({
           rank: formData.rank,
-          aggregation_period_days: Number(
-            formData.aggregation_period_days || 3650,
-          ),
-          target_period_days: Number(formData.target_period_days || 365),
           min_visit_count: Number(formData.min_visit_count || 0),
           max_visit_count:
             formData.max_visit_count === ""
@@ -225,10 +290,6 @@ export default function RfMasterEditForm({ rfMaster }: Props) {
           <div className="rounded border p-3 text-sm">
             {buildRfDescription({
               rank: formData.rank,
-              aggregation_period_days: Number(
-                formData.aggregation_period_days || 3650,
-              ),
-              target_period_days: Number(formData.target_period_days || 365),
               min_visit_count: Number(formData.min_visit_count || 0),
               max_visit_count:
                 formData.max_visit_count === ""

@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/table";
 
 type RfScore = {
+  id: number;
   visit_count: number;
   last_visit_at: string | null;
   rank: string;
@@ -69,7 +70,9 @@ export default function RfRankingTable({ rfScores }: Props) {
 
                     <TableCell>{score.visit_count}</TableCell>
                     <TableCell>{formatDate(score.last_visit_at)}</TableCell>
-                    <TableCell>{score.rank}</TableCell>
+                    <TableCell>
+                      {score.rank === "OUT" ? "" : score.rank}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

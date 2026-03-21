@@ -21,22 +21,41 @@ export function formatTargetPeriod(days: number) {
 
 export function buildRfDescription(params: {
   rank: string;
-  aggregation_period_days: number;
-  target_period_days: number;
   min_visit_count: number;
   max_visit_count: number | null;
 }) {
-  const {
-    rank,
-    aggregation_period_days,
-    target_period_days,
-    min_visit_count,
-    max_visit_count,
-  } = params;
+  const { rank, min_visit_count, max_visit_count } = params;
 
-  const aggregationText = `集計期間${daysToYearsText(aggregation_period_days)}`;
-  const targetText = `直近${daysToYearsText(target_period_days)}以内`;
-  const visitText = formatVisitRange(min_visit_count, max_visit_count);
+  if (rank === "A") {
+    return `直近10年の来店履歴を対象に、直近1年以内に${min_visit_count}回以上来店している顧客をランクA（超常連顧客）として判定します。`;
+  }
 
-  return `${aggregationText}間内の来店履歴を対象に、${targetText}に${visitText}来店している顧客をランク${rank || "未設定"}として判定します。`;
+  if (rank === "B") {
+    if (max_visit_count === null) {
+      return `直近10年の来店履歴を対象に、直近1年以内に${min_visit_count}回以上来店している顧客をランクB（常連客）として判定します。`;
+    }
+
+    return `直近10年の来店履歴を対象に、直近1年以内に${min_visit_count}回以上${max_visit_count}回以下来店している顧客をランクB（常連客）として判定します。`;
+  }
+
+  if (rank === "C") {
+    return "直近10年の来店履歴を対象に、A・B・D・E・Z・対象外のいずれにも該当しない顧客をランクCとして判定します。";
+  }
+
+  if (rank === "D") {
+    return "過去に来店実績があり、直近3年以上5年以内に来店がない顧客をランクD（休眠客）として判定します。";
+  }
+
+  if (rank === "E") {
+    return "直近10年の来店履歴を対象に、直近1年以内に1回来店し、かつ累計来店回数が1回の顧客をランクE（新規顧客）として判定します。";
+  }
+
+  if (rank === "Z") {
+    return "過去に来店実績があるものの、直近5年以上10年以内に来店がない顧客をランクZ（ランク外）として判定します。";
+  }
+
+  if (rank === "OUT") {
+    return "集計期間10年の対象外顧客です。";
+  }
+  return "条件未設定です。";
 }
