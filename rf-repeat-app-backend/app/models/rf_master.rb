@@ -1,6 +1,18 @@
 class RfMaster < ApplicationRecord
-  validates :rank, presence: true, uniqueness: true
-  validates :min_visit_count, presence: true
-  validates :min_days_since_last_visit, presence: true
-  validates :position, presence: true, uniqueness: true
+ALLOWED_RANKS = %w[A B C D E Z OUT].freeze
+
+  validates :rank, presence: true, uniqueness: true, inclusion: { in: ALLOWED_RANKS }
+
+  validates :min_visit_count,
+            numericality: { only_integer: true, greater_than_or_equal_to: 0 },
+            allow_nil: true
+
+  validates :max_visit_count,
+            numericality: { only_integer: true, greater_than_or_equal_to: 0 },
+            allow_nil: true
+
+  validates :position,
+            presence: true,
+            uniqueness: true,
+            numericality: { only_integer: true, greater_than_or_equal_to: 0 }
 end
