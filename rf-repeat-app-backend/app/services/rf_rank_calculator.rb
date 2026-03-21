@@ -1,4 +1,9 @@
 class RfRankCalculator
+  AGGREGATION_PERIOD_DAYS = 3650
+  ONE_YEAR_DAYS = 365
+  THREE_YEARS_DAYS = 1095
+  FIVE_YEARS_DAYS = 1825
+
   # 一人ずつ更新関数
   def self.call
     Customer.find_each do |customer|
@@ -11,34 +16,52 @@ class RfRankCalculator
     reservations = Reservation.where(customer_id: customer.id)
     visit_count = reservations.count
     last_visit_at = reservations.maximum(:visited_at)
-    # visit_countとlast_visit_atからランクを計算
-    rank = calculate_rank(visit_count, last_visit_at)
+
+    rank = calculate_rank(reservations, last_visit_at, visit_count)
     # 顧客のrf_scoreを更新
     update_rf_score(customer, visit_count, last_visit_at, rank)
   end
 
   # visit_count（来店回数）, last_visit_at（最終来店日）
-  def self.calculate_rank(visit_count, last_visit_at)
-    # 最終来店日が存在しない場合は、ランクEとする
-    return "E" if last_visit_at.nil?
+  def self.calculate_rank(reservations, last_visit_at ,total_visit_count)
+    return "OUT" if last_visit_at.nil?
 
-    # 最後の来店から何年経ったかを計算
-    years_since_last = (Time.current - last_visit_at) / 1.year
-    # 1年以内に来店かつ来店回数20回以上
-    if years_since_last <= 1 && visit_count >= 20
-      "A"
-    # 1年以内に来店かつ来店回数10回以上
-    elsif years_since_last <= 1 && visit_count >= 10
-      "B"
-    # 1年以内に来店かつ来店回数5回以上
-    elsif years_since_last <= 1 && visit_count >= 5
-      "C"
-    # 3年以内に来店かつ来店回数5回以上
-    elsif years_since_last <= 3 && visit_count >= 5
-      "D"
-    else
-      "E"
+    days_since_last = (Time.current.to_date - last_visit_at.to_date).to_i
+    return "OUT" if days_since_last > AGGREGATION_PERIOD_DAYS
+
+    visits_within_1_year = reservations.where("visited_at >= ?", ONE_YEAR_DAYS.days.ago).count
+
+    # RfMasterのランクA、B、Eの条件を取得
+    a_master = RfMaster.find_by(rank: "A")
+    b_master = RfMaster.find_by(rank: "B")
+    e_master = RfMaster.find_by(rank: "E")
+
+    a_min = a_master&.min_visit_count || 12
+    b_min = b_master&.min_visit_count || 8
+    b_max = b_master&.max_visit_count
+    e_min = e_master&.min_visit_count || 1
+
+    if visits_within_1_year >= a_min
+      return "A"
     end
+
+    if visits_within_1_year >= b_min
+      return "B" if b_max.nil? || visits_within_1_year <= b_max
+    end
+
+    if visits_within_1_year == e_min && total_visit_count == 1
+      return "E"
+    end
+
+    if days_since_last > 365 * 3 && days_since_last <= FIVE_YEARS_DAYS
+      return "D"
+    end
+
+    if days_since_last > FIVE_YEARS_DAYS && days_since_last <= AGGREGATION_PERIOD_DAYS
+      return "Z"
+    end
+
+    "C"
   end
 
   def self.update_rf_score(customer, visit_count, last_visit_at, rank)

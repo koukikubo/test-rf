@@ -2,6 +2,7 @@ import RfRankingTable from "@/components/rf/rf-ranking-table";
 
 // RailsのAPIから返って来るデータの型定義
 type RfScore = {
+  id: number;
   visit_count: number;
   last_visit_at: string | null;
   rank: string;

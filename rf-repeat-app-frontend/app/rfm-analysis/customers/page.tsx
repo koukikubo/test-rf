@@ -33,6 +33,44 @@ async function getCustomersByIds(ids: string): Promise<Customer[]> {
 
   return res.json();
 }
+
+function rowLabel(row: string): string {
+  switch (row) {
+    case "recent":
+      return "1年以内";
+    case "middle":
+      return "1年以上3年以内";
+    case "old":
+      return "3年以上5年以内";
+    case "inactive":
+      return "5年以上10年以内";
+    case "out_of_scope":
+      return "対象外";
+    default:
+      return "未設定";
+  }
+}
+
+function colLabel(col: string): string {
+  switch (col) {
+    case "A":
+      return "Aランク";
+    case "B":
+      return "Bランク";
+    case "C":
+      return "Cランク";
+    case "D":
+      return "Dランク";
+    case "E":
+      return "Eランク";
+    case "Z":
+      return "Zランク";
+    case "OUT":
+      return "対象外";
+    default:
+      return "未設定";
+  }
+}
 // 顧客IDのリストをクエリパラメータで受け取るため、searchParamsを使用している
 export default async function RfmTargetCustomersPage({
   searchParams,
@@ -41,7 +79,7 @@ export default async function RfmTargetCustomersPage({
   searchParams: Promise<{ ids?: string; row?: string; col?: string }>;
 }) {
   // クエリパラメータからids、row、colを取得
-  const { ids = "" } = await searchParams;
+  const { ids = "", row = "", col = "" } = await searchParams;
   // idsが存在する場合はgetCustomersByIds関数を呼び出して顧客情報を取得、存在しない場合は空の配列を使用
   const customers = ids ? await getCustomersByIds(ids) : [];
 
@@ -50,6 +88,9 @@ export default async function RfmTargetCustomersPage({
       <Card>
         <CardHeader>
           <CardTitle>対象顧客一覧</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            来店期間: {rowLabel(row)} / ランク: {colLabel(col)}
+          </p>
         </CardHeader>
 
         <CardContent>

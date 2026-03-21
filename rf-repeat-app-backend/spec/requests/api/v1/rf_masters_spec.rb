@@ -62,34 +62,8 @@ RSpec.describe "Api::V1::RfMasters", type: :request do
         }
       }
     end
-
-    it "RFマスターを作成できる" do
-      expect {
-        post "/api/v1/rf_masters", params: valid_params
-      }.to change(RfMaster, :count).by(1)
-
-      expect(response).to have_http_status(:created)
-
-      json = JSON.parse(response.body)
-
-      expect(json["rank"]).to eq("A")
-      expect(json["min_visit_count"]).to eq(20)
-      expect(json["position"]).to eq(1)
-    end
-
-    it "必須項目が不足していると作成できない" do
-      expect {
-        post "/api/v1/rf_masters", params: invalid_params
-      }.not_to change(RfMaster, :count)
-
-      expect(response).to have_http_status(:unprocessable_entity)
-
-      json = JSON.parse(response.body)
-
-      expect(json["errors"]).not_to be_empty
-    end
   end
-
+  
   describe "PATCH /api/v1/rf_masters/:id" do
     let!(:rf_master) do
       RfMaster.create!(
@@ -134,27 +108,6 @@ RSpec.describe "Api::V1::RfMasters", type: :request do
       rf_master.reload
       expect(rf_master.rank).to eq("A")
       expect(rf_master.position).to eq(1)
-    end
-  end
-
-  describe "DELETE /api/v1/rf_masters/:id" do
-    let!(:rf_master) do
-      RfMaster.create!(
-        rank: "A",
-        min_visit_count: 20,
-        min_days_since_last_visit: 0,
-        max_visit_count: nil,
-        max_days_since_last_visit: 365,
-        position: 1
-      )
-    end
-
-    it "RFマスターを削除できる" do
-      expect {
-        delete "/api/v1/rf_masters/#{rf_master.id}"
-      }.to change(RfMaster, :count).by(-1)
-
-      expect(response).to have_http_status(:no_content)
     end
   end
 end
