@@ -54,7 +54,7 @@ class RfmMatrixBuilder
     end
   
 
-    call.each do |cell|
+    cells.each_value do |cell|
       cell[:percentage] = 
         if total_count.zero?
           0.0
@@ -64,9 +64,9 @@ class RfmMatrixBuilder
     end
     # 最終的に、行と列の定義、セルの情報をまとめて返す
     {
-      analysis_month: analysis_month_label,
-      period_start: period[:start].strftime("%Y-%m-%d"),
-      period_end: period[:end].strftime("%Y-%m-%d"),
+      analysis_month_label: analysis_month_label,
+      period_start: period[:start].strftime("%Y/%m/%d"),
+      period_end: period[:end].strftime("%Y/%m/%d"),
       rows: ROWS,
       cols: cols,
       cells: cells.values
@@ -84,15 +84,11 @@ class RfmMatrixBuilder
     period_start = (base_month - 10.years + 1.month).beginning_of_month
     { start: period_start, end: period_end }
   end
-  # 直近の来店日が、どの行（いつ来たか）に入るか判定する関数
-  {
-    start: period_start, 
-    end: period_end
-  }
+
   # 来店回数列情報を定義する関数
   def build_cols
     [
-      { key: "Vip",
+      { key: "vip",
         label: "13回以上",
         rank_key: "A" ,
         rank_label: "A" 
@@ -112,7 +108,7 @@ class RfmMatrixBuilder
         rank_key: "D" ,
         rank_label: "D" 
       },
-      { key: "Starter",
+      { key: "starter",
         label: "2回~1回",
         rank_key: "E" ,
         rank_label: "E" 
@@ -120,16 +116,20 @@ class RfmMatrixBuilder
     ]
   end
 
+  
+
   # 行と列の定義をもとに、空のセルのハッシュを作る関数。表を表示する際に空白セルも表示する。
   def build_empty_cells(cols)
     ROWS.product(cols).each_with_object({}) do |(row, col), hash|
+      rank_key = rank_key_for_cell(row[:key], col[:key])
+
       hash[[row[:key], col[:key]]] = { 
         row_key: row[:key],
         row_label: row[:label],
         col_key: col[:key],
         col_label: col[:label],
-        rank_key: col[:rank_key],
-        rank_label: col[:rank_label],
+        rank_key: rank_key,
+        rank_label: rank_key,
         count: 0,
         percentage: 0.0,
         customer_ids: []
@@ -137,10 +137,38 @@ class RfmMatrixBuilder
     end
   end
 
+  def rank_key_for_cell(row_key, col_key)
+    case row_key
+    when "year_1"
+      case col_key
+      when "vip"
+        "A"
+      when "high"
+        "B"
+      when "middle"
+        "C"
+      when "low"
+        "C"
+      when "starter"
+        "E"
+      else
+        nil
+      end
+    when "year_2", "year_3"
+      "C"
+    when "year_4"
+      "D"
+    when "year_5"
+      "Z"
+    else
+      nil
+    end
+  end
+
   # 顧客の予約情報から、行のキーを判定する関数
   def row_key_for(customer_reservations, base_month)
     last_visit_at = customer_reservations.max_by(&:visited_at).visited_at
-    return "out_of_scope" if last_visit_at.nil?
+    return "nil" if last_visit_at.nil?
 
     range_1_start = (base_month - 1.year + 1.month).beginning_of_month
     range_1_end   = base_month.end_of_month
