@@ -9,6 +9,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
 type MatrixRow = {
   key: string;
   label: string;
@@ -56,6 +63,47 @@ function findCell(
   );
 }
 
+function calculateColumnTotals(matrix: RfmMatrixResponse) {
+  return matrix.cols.map((col) => {
+    const relatedCells = matrix.cells.filter(
+      (cell) => cell.col_key === col.key,
+    );
+
+    const totalCount = relatedCells.reduce((sum, cell) => sum + cell.count, 0);
+    const totalPercentage = relatedCells.reduce(
+      (sum, cell) => sum + cell.percentage,
+      0,
+    );
+
+    return {
+      colKey: col.key,
+      totalCount,
+      totalPercentage: Number(totalPercentage.toFixed(1)),
+    };
+  });
+}
+
+function rankMeaning(rank: string): string {
+  switch (rank) {
+    case "A":
+      return "超常連顧客：来店頻度が非常に高く、最優良顧客として扱う層です。";
+    case "B":
+      return "常連客：継続的に来店している安定顧客です。";
+    case "C":
+      return "通常顧客：A・B・D・E・Z・対象外のいずれにも当てはまらない顧客です。";
+    case "D":
+      return "休眠客：一定期間来店がなく、離反傾向がある顧客です。";
+    case "E":
+      return "新規顧客：直近1年以内に初回来店顧客です。";
+    case "Z":
+      return "ランク外：集計期間内に履歴はあるものの、優先ランク条件には当てはまらない顧客です。";
+    case "OUT":
+      return "対象外：集計期間の対象外となる顧客です。";
+    default:
+      return "";
+  }
+}
+
 function rankColorClass(rank: string): string {
   switch (rank) {
     case "A":
@@ -68,7 +116,7 @@ function rankColorClass(rank: string): string {
       return "bg-yellow-300";
     case "E":
       return "bg-orange-300";
-    case "F":
+    case "Z":
       return "bg-gray-300";
     case "OUT":
       return "bg-slate-300";
@@ -78,6 +126,7 @@ function rankColorClass(rank: string): string {
 }
 
 export default function RfmMatrixCard({ matrix }: Props) {
+  const columnTotals = calculateColumnTotals(matrix);
   return (
     <Card>
       <CardHeader>
@@ -91,36 +140,37 @@ export default function RfmMatrixCard({ matrix }: Props) {
       </CardHeader>
 
       <CardContent>
-        <div className="mb-4 flex flex-wrap gap-3 text-sm">
-          <div className="flex items-center gap-2">
-            <span className="inline-block h-4 w-4 rounded bg-green-600" />
-            <span>A</span>
+        <TooltipProvider>
+          <div className="mb-4 flex flex-wrap gap-3 text-sm">
+            {[
+              { key: "A", label: "A", color: "bg-green-600" },
+              { key: "B", label: "B", color: "bg-green-300" },
+              { key: "C", label: "C", color: "bg-blue-300" },
+              { key: "D", label: "D", color: "bg-yellow-300" },
+              { key: "E", label: "E", color: "bg-orange-300" },
+              { key: "Z", label: "Z", color: "bg-gray-300" },
+              { key: "OUT", label: "対象外", color: "bg-slate-300" },
+            ].map((item) => (
+              <Tooltip key={item.key}>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    className="flex items-center gap-2 rounded px-1 py-0.5"
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 rounded ${item.color}`}
+                    />
+                    <span>{item.label}</span>
+                  </button>
+                </TooltipTrigger>
+
+                <TooltipContent className="max-w-xs">
+                  <p>{rankMeaning(item.key)}</p>
+                </TooltipContent>
+              </Tooltip>
+            ))}
           </div>
-          <div className="flex items-center gap-2">
-            <span className="inline-block h-4 w-4 rounded bg-green-300" />
-            <span>B</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="inline-block h-4 w-4 rounded bg-blue-300" />
-            <span>C</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="inline-block h-4 w-4 rounded bg-yellow-300" />
-            <span>D</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="inline-block h-4 w-4 rounded bg-orange-300" />
-            <span>E</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="inline-block h-4 w-4 rounded bg-gray-300" />
-            <span>Z</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="inline-block h-4 w-4 rounded bg-slate-300" />
-            <span>対象外</span>
-          </div>
-        </div>
+        </TooltipProvider>
 
         <div className="overflow-x-auto">
           <Table>
@@ -186,6 +236,32 @@ export default function RfmMatrixCard({ matrix }: Props) {
                   })}
                 </TableRow>
               ))}
+
+              <TableRow>
+                <TableCell className="font-medium">合計</TableCell>
+
+                {columnTotals.map((total) => (
+                  <TableCell
+                    key={`total-count-${total.colKey}`}
+                    className="font-medium"
+                  >
+                    {total.totalCount}
+                  </TableCell>
+                ))}
+              </TableRow>
+
+              <TableRow>
+                <TableCell className="font-medium">全体割合</TableCell>
+
+                {columnTotals.map((total) => (
+                  <TableCell
+                    key={`total-percentage-${total.colKey}`}
+                    className="font-medium"
+                  >
+                    {total.totalPercentage}%
+                  </TableCell>
+                ))}
+              </TableRow>
             </TableBody>
           </Table>
         </div>
