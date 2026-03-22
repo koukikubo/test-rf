@@ -8,6 +8,8 @@ type MatrixRow = {
 type MatrixCol = {
   key: string;
   label: string;
+  rank_key: string;
+  rank_label: string;
 };
 
 type MatrixCell = {
@@ -15,11 +17,17 @@ type MatrixCell = {
   row_label: string;
   col_key: string;
   col_label: string;
+  rank_key: string;
+  rank_label: string;
   count: number;
+  percentage: number;
   customer_ids: number[];
 };
 
 type RfmMatrixResponse = {
+  analysis_month_label: string;
+  period_start: string;
+  period_end: string;
   rows: MatrixRow[];
   cols: MatrixCol[];
   cells: MatrixCell[];
