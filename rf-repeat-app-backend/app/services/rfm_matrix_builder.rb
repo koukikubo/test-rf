@@ -208,7 +208,7 @@ class RfmMatrixBuilder
 
     case visit_count
     when 13..Float::INFINITY
-      "Vip"
+      "vip"
     when 10..12
       "high"
     when 6..9
@@ -216,7 +216,7 @@ class RfmMatrixBuilder
     when 3..5
       "low"
     when 1..2
-      "Starter"
+      "starter"
     else
       nil
     end
