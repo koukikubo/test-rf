@@ -1,44 +1,80 @@
 require "rails_helper"
 
-RSpec.describe RfRankCalculator do
-  describe ".calculate_rank" do
-    it "最終来店日がない場合は E を返す" do
-      rank = described_class.calculate_rank(0, nil)
-      expect(rank).to eq("E")
-    end
-    it "1年以内かつ来店回数20回以上なら A を返す" do
-      rank = described_class.calculate_rank(20, 1.year.ago + 1.day)
-
-      expect(rank).to eq("A")
-    end
-    it "1年以内かつ来店回数10回以上なら B を返す" do
-      rank = described_class.calculate_rank(12, 1.year.ago + 1.day)
-
-      expect(rank).to eq("B")
+RSpec.describe RfRankCalculator, type: :service do
+  include ActiveSupport::Testing::TimeHelpers
+  describe ".update_customer" do
+    around do |example|
+      travel_to (Time.zone.parse("2026-03-15 22:00:00")) do
+        example.run
+      end
     end
 
-    it "1年以内かつ来店回数5回以上なら C を返す" do 
-      rank = described_class.calculate_rank(6, 1.year.ago + 1.day)
+    let!(:customer) { Customer.create!(name: "大阪点検太朗") }
 
-      expect(rank).to eq("C")
+    before do
+      RfMaster.delete_all
+
+      RfMaster.create!(rank: "A", min_visit_count: 13, max_visit_count: nil, position: 1)
+      RfMaster.create!(rank: "B", min_visit_count: 10, max_visit_count: 12, position: 2)
+      RfMaster.create!(rank: "C", min_visit_count: nil, max_visit_count: nil, position: 3)
+      RfMaster.create!(rank: "D", min_visit_count: nil, max_visit_count: nil, position: 4)
+      RfMaster.create!(rank: "E", min_visit_count: 1, max_visit_count: 2, position: 5)
+      RfMaster.create!(rank: "Z", min_visit_count: nil, max_visit_count: nil, position: 6)
+      RfMaster.create!(rank: "OUT", min_visit_count: nil, max_visit_count: nil, position: 7)
     end
 
-    it "3年以内かつ来店回数5回以上なら D を返す" do
-      rank = described_class.calculate_rank(5, 3.years.ago + 1.day)
+    context "直近1年で1回来店している場合" do
+      before do
+        Reservation.create!(
+          customer: customer,
+          visited_at: Time.zone.parse("2025-10-10 12:00:00")
+        )
+      end
 
-      expect(rank).to eq("D")
-    end
-  end
-  
-  describe "Eランク（その他）の判定" do
-    it "期間は条件内（3年以内）だが、来店回数が不足している場合は E" do
-      expect(described_class.calculate_rank(4, 2.years.ago)).to eq("E")
+      it "Eランクになる" do
+        described_class.update_customer(customer)
+
+        rf_score = customer.reload.rf_score
+        expect(rf_score).to be_present
+        expect(rf_score.visit_count).to eq(1)
+        expect(rf_score.rank).to eq("E")
+        expect(rf_score.last_visit_at.to_date).to eq(Date.new(2025, 10, 10))
+      end
     end
 
-    it "来店回数は十分（20回以上）だが、期間が3年を超えている場合は E" do
-      # 3.years.ago だと計算のタイミングで 3.00001 年になる可能性があるため、
-      # 確実に超えるように - 1.day をしています。
-      expect(described_class.calculate_rank(20, 3.years.ago - 1.day)).to eq("E")
+    context "直近1年で13回来店している場合" do
+      before do
+        13.times do |i|
+          Reservation.create!(
+            customer: customer,
+            visited_at: Time.zone.parse("2025-04-01 12:00:00") + i.days
+          )
+        end
+      end
+
+      it "Aランクになる" do
+        described_class.update_customer(customer)
+
+        rf_score = customer.reload.rf_score
+        expect(rf_score.visit_count).to eq(13)
+        expect(rf_score.rank).to eq("A")
+      end
+    end
+
+    context "最終来店が3年以上4年未満前の場合" do
+      before do
+        Reservation.create!(
+          customer: customer,
+          visited_at: Time.zone.parse("2022-06-01 12:00:00")
+        )
+      end
+
+      it "Dランクになる" do
+        described_class.update_customer(customer)
+
+        rf_score = customer.reload.rf_score
+        expect(rf_score.rank).to eq("D")
+      end
     end
   end
 end

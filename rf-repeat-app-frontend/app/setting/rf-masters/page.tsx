@@ -96,8 +96,7 @@ export default async function RfMastersPage() {
                       <TableCell className="whitespace-normal">
                         {buildRfDescription({
                           rank: rfMaster.rank,
-                          aggregation_period_days:
-                            rfMaster.aggregation_period_days,
+                          aggregation_period_days: rfMaster.aggregation_period_days,
                           target_period_days: rfMaster.target_period_days,
                           min_visit_count: rfMaster.min_visit_count,
                           max_visit_count: rfMaster.max_visit_count,
