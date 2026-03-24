@@ -23,7 +23,10 @@ export function buildRfDescription(params: {
   rank: string;
   min_visit_count: number;
   max_visit_count: number | null;
+  aggregation_period_days: number;
+  target_period_days: number;
 }) {
+  
   const { rank, min_visit_count, max_visit_count } = params;
 
   if (rank === "A") {
