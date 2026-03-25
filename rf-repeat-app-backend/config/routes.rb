@@ -3,7 +3,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :rf_scores, only: [:index]
       resources :customers, only: [:create, :index, :show] 
-      resources :reservations, only: [:create, :index, :show]
+      resources :reservations, only: [:create, :index, :show, :update, :destroy]
       resources :rfm_matrices, only: [:index]
       resources :rf_masters, only: [:index, :show, :update]
     end

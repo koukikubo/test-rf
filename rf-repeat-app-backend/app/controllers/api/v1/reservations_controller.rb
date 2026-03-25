@@ -18,6 +18,7 @@ class Api::V1::ReservationsController < ApplicationController
     reservation = Reservation.new(reservation_params)
 
     if reservation.save
+      
       render json: reservation, status: :created
     else
       render json: { errors: reservation.errors.full_messages }, status: :unprocessable_entity
@@ -27,6 +28,22 @@ class Api::V1::ReservationsController < ApplicationController
   def show
     reservation = Reservation.find(params[:id])
     render json: reservation, status: :ok
+  end
+
+  def update
+    reservation = Reservation.find(params[:id])
+
+    if reservation.update(reservation_params)
+      render json: reservation, status: :ok
+    else
+      render json: { errors: reservation.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    reservation = Reservation.find(params[:id])
+    reservation.destroy
+    render json: { message: "Reservation deleted successfully" }, status: :ok
   end
 
   private
