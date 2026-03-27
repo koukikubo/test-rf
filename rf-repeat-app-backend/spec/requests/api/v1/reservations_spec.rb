@@ -21,7 +21,7 @@ RSpec.describe "Api::V1::Reservations", type: :request do
         post '/api/v1/reservations', params: { reservation: { customer_id: nil, visited_at: Time.current } }
       }.not_to change(Reservation, :count)
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
 
       json = JSON.parse(response.body)
 
@@ -33,7 +33,7 @@ RSpec.describe "Api::V1::Reservations", type: :request do
         post '/api/v1/reservations', params: { reservation: { customer_id: customer.id, visited_at: nil } }
       }.not_to change(Reservation, :count)
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:unprocessable_content)
 
       json = JSON.parse(response.body)
 
@@ -71,6 +71,71 @@ RSpec.describe "Api::V1::Reservations", type: :request do
 
       expect(json["id"]).to eq(reservation.id)
       expect(json["customer_id"]).to eq(customer.id)
+    end
+  end
+end
+
+# RfScoreUpdateJob の enqueue をテストするためのコード
+RSpec.describe "Api::V1::Reservations", type: :request do
+  include ActiveJob::TestHelper
+
+  let!(:customer) { Customer.create!(name: "予約確認顧客") }
+
+  before do
+    clear_enqueued_jobs
+    clear_performed_jobs
+  end
+
+  describe "POST /api/v1/reservations" do
+    it "予約作成成功時に RfScoreUpdateJob を enqueue する" do
+      expect do
+        post "/api/v1/reservations", params: {
+          reservation: {
+            customer_id: customer.id,
+            visited_at: "2026-03-25T12:00:00"
+          }
+        }
+      end.to have_enqueued_job(RfScoreUpdateJob).with(customer.id)
+
+      expect(response).to have_http_status(:created)
+    end
+  end
+
+  describe "PATCH /api/v1/reservations/:id" do
+    let!(:reservation) do
+      Reservation.create!(
+        customer: customer,
+        visited_at: Time.zone.parse("2026-03-20 12:00:00")
+      )
+    end
+
+    it "予約更新成功時に RfScoreUpdateJob を enqueue する" do
+      expect do
+        patch "/api/v1/reservations/#{reservation.id}", params: {
+          reservation: {
+            visited_at: "2026-03-26T12:00:00"
+          }
+        }
+      end.to have_enqueued_job(RfScoreUpdateJob).with(customer.id)
+
+      expect(response).to have_http_status(:ok)
+    end
+  end
+
+  describe "DELETE /api/v1/reservations/:id" do
+    let!(:reservation) do
+      Reservation.create!(
+        customer: customer,
+        visited_at: Time.zone.parse("2026-03-20 12:00:00")
+      )
+    end
+
+    it "予約削除成功時に RfScoreUpdateJob を enqueue する" do
+      expect do
+        delete "/api/v1/reservations/#{reservation.id}"
+      end.to have_enqueued_job(RfScoreUpdateJob).with(customer.id)
+
+      expect(response).to have_http_status(:ok)
     end
   end
 end

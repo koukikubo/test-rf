@@ -4,21 +4,20 @@ class RfRankCalculator
   THREE_YEARS_DAYS = 1095
   FIVE_YEARS_DAYS = 1825
 
-  # 一人ずつ更新関数
+  # 全顧客のRFスコアを更新する関数
   def self.call
     Customer.find_each do |customer|
       update_customer(customer)
     end
   end
   
-  # 全体更新関数
+  # 顧客のRFスコアを更新する関数
   def self.update_customer(customer)
     reservations = Reservation.where(customer_id: customer.id)
     visit_count = reservations.count
     last_visit_at = reservations.maximum(:visited_at)
 
     rank = calculate_rank(reservations, last_visit_at, visit_count)
-    # 顧客のrf_scoreを更新
     update_rf_score(customer, visit_count, last_visit_at, rank)
   end
 
