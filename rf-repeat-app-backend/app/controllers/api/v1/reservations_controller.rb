@@ -43,6 +43,7 @@ class Api::V1::ReservationsController < ApplicationController
 
       # 更新後の顧客についても再計算する
       RfScoreUpdateJob.perform_later(reservation.customer_id)
+      render json: reservation, status: :ok
     else
       render json: { errors: reservation.errors.full_messages }, status: :unprocessable_entity
     end
@@ -63,7 +64,7 @@ class Api::V1::ReservationsController < ApplicationController
   end
 
   private
-  
+
   def reservation_params
     params.require(:reservation).permit(:customer_id, :visited_at)
   end
