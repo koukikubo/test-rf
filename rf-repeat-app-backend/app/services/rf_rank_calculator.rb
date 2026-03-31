@@ -24,7 +24,6 @@ class RfRankCalculator
   # visit_count（来店回数）, last_visit_at（最終来店日）
   def self.calculate_rank(reservations, last_visit_at ,total_visit_count)
     return "OUT" if last_visit_at.nil?
-
     days_since_last = (Time.current.to_date - last_visit_at.to_date).to_i
     return "OUT" if days_since_last > AGGREGATION_PERIOD_DAYS
 

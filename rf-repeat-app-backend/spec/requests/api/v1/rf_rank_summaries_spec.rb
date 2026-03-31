@@ -14,8 +14,8 @@ RSpec.describe "Api::V1::RfRankSummaries", type: :request do
     end
 
     it "顧客ランク集計結果を返す" do
+      # 
       get "/api/v1/rf_rank_summaries"
-
       expect(response).to have_http_status(:ok)
 
       json = JSON.parse(response.body)
