@@ -8,6 +8,7 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table";
+import { formatDate } from "@/lib/rf-master-format";
 
 type RfScore = {
   id: number;
@@ -19,16 +20,6 @@ type RfScore = {
     name: string;
   };
 };
-
-// 日付を日本語形式で表示するための関数
-function formatDate(dateString: string | null) {
-  if (!dateString) {
-    return "来店履歴なし";
-  }
-
-  const date = new Date(dateString);
-  return date.toLocaleDateString("ja-JP");
-}
 
 type Props = {
   rfScores: RfScore[];

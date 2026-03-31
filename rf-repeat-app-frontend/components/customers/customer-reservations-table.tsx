@@ -7,6 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { formatDateTime } from "@/lib/rf-master-format";
 
 type Reservation = {
   id: number;
@@ -16,11 +17,6 @@ type Reservation = {
 type Props = {
   reservations: Reservation[];
 };
-
-function formatDate(dateString: string) {
-  const date = new Date(dateString);
-  return date.toLocaleString("ja-JP");
-}
 
 export default function CustomerReservationsTable({ reservations }: Props) {
   return (
@@ -43,7 +39,9 @@ export default function CustomerReservationsTable({ reservations }: Props) {
               {reservations.map((reservation) => (
                 <TableRow key={reservation.id}>
                   <TableCell>{reservation.id}</TableCell>
-                  <TableCell>{formatDate(reservation.visited_at)}</TableCell>
+                  <TableCell>
+                    {formatDateTime(reservation.visited_at)}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

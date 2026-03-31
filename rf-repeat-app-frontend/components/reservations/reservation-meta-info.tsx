@@ -1,24 +1,12 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatDateTime } from "@/lib/rf-master-format";
 
 type Props = {
   createdAt: string;
   updatedAt: string;
 };
 
-function formatDate(dateString: string) {
-  const date = new Date(dateString);
-  return date.toLocaleString("ja-JP");
-}
-
-export default function ReservationMetaInfo({
-  createdAt,
-  updatedAt,
-}: Props) {
+export default function ReservationMetaInfo({ createdAt, updatedAt }: Props) {
   return (
     <Card>
       <CardHeader>
@@ -26,8 +14,8 @@ export default function ReservationMetaInfo({
       </CardHeader>
 
       <CardContent className="space-y-2">
-        <p>作成日時: {formatDate(createdAt)}</p>
-        <p>更新日時: {formatDate(updatedAt)}</p>
+        <p>作成日時: {formatDateTime(createdAt)}</p>
+        <p>更新日時: {formatDateTime(updatedAt)}</p>
       </CardContent>
     </Card>
   );
