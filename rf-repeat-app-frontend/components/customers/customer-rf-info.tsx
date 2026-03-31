@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatDate } from "@/lib/rf-master-format";
 
 type RfScore = {
   visit_count: number;
@@ -9,13 +10,6 @@ type RfScore = {
 type Props = {
   rfScore: RfScore | null;
 };
-
-function formatDate(dateString: string | null) {
-  if (!dateString) return "未設定";
-
-  const date = new Date(dateString);
-  return date.toLocaleString("ja-JP");
-}
 
 export default function CustomerRfInfo({ rfScore }: Props) {
   return (

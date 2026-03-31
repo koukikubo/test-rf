@@ -15,6 +15,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { rankColor, rankLabel, rankMeaning } from "@/lib/rf-master-format";
 
 type MatrixRow = {
   key: string;
@@ -40,7 +41,7 @@ type MatrixCell = {
   customer_ids: number[];
 };
 
-type RfmMatrixResponse = {
+type RfMatrixResponse = {
   analysis_month_label: string;
   period_start: string;
   period_end: string;
@@ -50,7 +51,7 @@ type RfmMatrixResponse = {
 };
 
 type Props = {
-  matrix: RfmMatrixResponse;
+  matrix: RfMatrixResponse;
 };
 
 function findCell(
@@ -63,7 +64,7 @@ function findCell(
   );
 }
 
-function calculateColumnTotals(matrix: RfmMatrixResponse) {
+function calculateColumnTotals(matrix: RfMatrixResponse) {
   return matrix.cols.map((col) => {
     const relatedCells = matrix.cells.filter(
       (cell) => cell.col_key === col.key,
@@ -83,49 +84,7 @@ function calculateColumnTotals(matrix: RfmMatrixResponse) {
   });
 }
 
-function rankMeaning(rank: string): string {
-  switch (rank) {
-    case "A":
-      return "超常連顧客：来店頻度が非常に高く、最優良顧客として扱う層です。";
-    case "B":
-      return "常連客：継続的に来店している安定顧客です。";
-    case "C":
-      return "通常顧客：A・B・D・E・Z・対象外のいずれにも当てはまらない顧客です。";
-    case "D":
-      return "休眠客：一定期間来店がなく、離反傾向がある顧客です。";
-    case "E":
-      return "新規顧客：直近1年以内に初回来店顧客です。";
-    case "Z":
-      return "ランク外：集計期間内に履歴はあるものの、優先ランク条件には当てはまらない顧客です。";
-    case "OUT":
-      return "対象外：集計期間の対象外となる顧客です。";
-    default:
-      return "";
-  }
-}
-
-function rankColorClass(rank: string): string {
-  switch (rank) {
-    case "A":
-      return "bg-green-600 text-white";
-    case "B":
-      return "bg-green-300";
-    case "C":
-      return "bg-blue-300";
-    case "D":
-      return "bg-yellow-300";
-    case "E":
-      return "bg-orange-300";
-    case "Z":
-      return "bg-gray-300";
-    case "OUT":
-      return "bg-slate-300";
-    default:
-      return "bg-white";
-  }
-}
-
-export default function RfmMatrixCard({ matrix }: Props) {
+export default function RfMatrixCard({ matrix }: Props) {
   const columnTotals = calculateColumnTotals(matrix);
   return (
     <Card>
@@ -142,30 +101,22 @@ export default function RfmMatrixCard({ matrix }: Props) {
       <CardContent>
         <TooltipProvider>
           <div className="mb-4 flex flex-wrap gap-3 text-sm">
-            {[
-              { key: "A", label: "A", color: "bg-green-600" },
-              { key: "B", label: "B", color: "bg-green-300" },
-              { key: "C", label: "C", color: "bg-blue-300" },
-              { key: "D", label: "D", color: "bg-yellow-300" },
-              { key: "E", label: "E", color: "bg-orange-300" },
-              { key: "Z", label: "Z", color: "bg-gray-300" },
-              { key: "OUT", label: "対象外", color: "bg-slate-300" },
-            ].map((item) => (
-              <Tooltip key={item.key}>
+            {["A", "B", "C", "D", "E", "Z", "OUT"].map((rank) => (
+              <Tooltip key={rank}>
                 <TooltipTrigger asChild>
                   <button
                     type="button"
                     className="flex items-center gap-2 rounded px-1 py-0.5"
                   >
                     <span
-                      className={`inline-block h-4 w-4 rounded ${item.color}`}
+                      className={`inline-block h-4 w-4 rounded ${rankColor(rank)}`}
                     />
-                    <span>{item.label}</span>
+                    <span>{rankLabel(rank)}</span>
                   </button>
                 </TooltipTrigger>
 
                 <TooltipContent className="max-w-xs">
-                  <p>{rankMeaning(item.key)}</p>
+                  <p>{rankMeaning(rank)}</p>
                 </TooltipContent>
               </Tooltip>
             ))}
@@ -210,11 +161,11 @@ export default function RfmMatrixCard({ matrix }: Props) {
                     return (
                       <TableCell
                         key={`${row.key}-${col.key}`}
-                        className={rankColorClass(rankKey)}
+                        className={rankColor(rankKey)}
                       >
                         {count > 0 ? (
                           <Link
-                            href={`/rfm-analysis/customers?ids=${customerIds.join(",")}&row=${row.key}&col=${col.key}&{rankKey}`}
+                            href={`/rf-analysis/customers?ids=${customerIds.join(",")}&row=${row.key}&col=${col.key}&{rankKey}`}
                             className="underline"
                           >
                             <div className="flex flex-col">

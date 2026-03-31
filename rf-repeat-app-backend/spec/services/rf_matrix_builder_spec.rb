@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe RfmMatrixBuilder, type: :service do
+RSpec.describe RfMatrixBuilder, type: :service do
   include ActiveSupport::Testing::TimeHelpers
 
   describe ".call" do

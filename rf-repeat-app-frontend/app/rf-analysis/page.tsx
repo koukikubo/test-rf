@@ -1,4 +1,4 @@
-import RfmMatrixCard from "@/components/rf/rfm-matrix-card";
+import RfMatrixCard from "@/components/rf/rf-matrix-card";
 
 type MatrixRow = {
   key: string;
@@ -24,7 +24,7 @@ type MatrixCell = {
   customer_ids: number[];
 };
 
-type RfmMatrixResponse = {
+type RfMatrixResponse = {
   analysis_month_label: string;
   period_start: string;
   period_end: string;
@@ -33,14 +33,14 @@ type RfmMatrixResponse = {
   cells: MatrixCell[];
 };
 
-async function getRfmMatrix(): Promise<RfmMatrixResponse> {
+async function getRfMatrix(): Promise<RfMatrixResponse> {
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   if (!baseUrl) {
     throw new Error("NEXT_PUBLIC_API_BASE_URL が設定されていません");
   }
 
-  const res = await fetch(`${baseUrl}/api/v1/rfm_matrices`, {
+  const res = await fetch(`${baseUrl}/api/v1/rf_matrices`, {
     cache: "no-store",
   });
 
@@ -51,12 +51,12 @@ async function getRfmMatrix(): Promise<RfmMatrixResponse> {
   return res.json();
 }
 
-export default async function RfmMatricesPage() {
-  const matrix = await getRfmMatrix();
+export default async function RfMatricesPage() {
+  const matrix = await getRfMatrix();
 
   return (
     <main className="p-6">
-      <RfmMatrixCard matrix={matrix} />
+      <RfMatrixCard matrix={matrix} />
     </main>
   );
 }

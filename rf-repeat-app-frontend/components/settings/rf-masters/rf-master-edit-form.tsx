@@ -269,6 +269,8 @@ export default function RfMasterEditForm({ rfMaster }: Props) {
             formData.max_visit_count === ""
               ? null
               : Number(formData.max_visit_count),
+          aggregation_period_days: 0,
+          target_period_days: 0,
         })}
       </div>
 
@@ -295,6 +297,8 @@ export default function RfMasterEditForm({ rfMaster }: Props) {
                 formData.max_visit_count === ""
                   ? null
                   : Number(formData.max_visit_count),
+              aggregation_period_days: 0,
+              target_period_days: 0,
             })}
           </div>
 

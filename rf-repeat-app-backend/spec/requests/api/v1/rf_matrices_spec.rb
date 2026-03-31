@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe "Api::V1::RfmMatrices", type: :request do
+RSpec.describe "Api::V1::RfMatrices", type: :request do
   include ActiveSupport::Testing::TimeHelpers
 
   around do |example|
@@ -31,7 +31,7 @@ RSpec.describe "Api::V1::RfmMatrices", type: :request do
     end
 
     it "RF分析表のJSONを返す" do
-      get "/api/v1/rfm_matrices"
+      get "/api/v1/rf_matrices"
 
       expect(response).to have_http_status(:ok)
 
@@ -71,7 +71,7 @@ RSpec.describe "Api::V1::RfmMatrices", type: :request do
     end
 
     it "直近1年 × 13回以上 のセルが返る" do
-      get "/api/v1/rfm_matrices"
+      get "/api/v1/rf_matrices"
 
       expect(response).to have_http_status(:ok)
 
@@ -98,7 +98,7 @@ RSpec.describe "Api::V1::RfmMatrices", type: :request do
     end
 
     it "4年〜5年前 × 2〜1回 のセルが返る" do
-      get "/api/v1/rfm_matrices"
+      get "/api/v1/_matrices"
 
       expect(response).to have_http_status(:ok)
 

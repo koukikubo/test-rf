@@ -1,4 +1,4 @@
-class RfmMatrixBuilder
+class RfMatrixBuilder
     # クラスメソッドとして呼び出すためのエントリーポイント
   def self.call
     new.call

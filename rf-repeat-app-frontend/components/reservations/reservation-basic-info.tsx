@@ -1,16 +1,12 @@
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatDateTime } from "@/lib/rf-master-format";
 
 type Props = {
   id: number;
   customerId: number;
   visitedAt: string;
 };
-
-function formatDate(dateString: string) {
-  const date = new Date(dateString);
-  return date.toLocaleString("ja-JP");
-}
 
 export default function ReservationBasicInfo({
   id,
@@ -31,7 +27,7 @@ export default function ReservationBasicInfo({
             {customerId}
           </Link>
         </p>
-        <p>来店日時: {formatDate(visitedAt)}</p>
+        <p>来店日時: {formatDateTime(visitedAt)}</p>
       </CardContent>
     </Card>
   );
