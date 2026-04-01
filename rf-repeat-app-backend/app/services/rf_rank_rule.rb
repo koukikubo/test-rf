@@ -1,68 +1,127 @@
 class RfRankRule
-  # RfRankRule.call(...) で呼び出すためのエントリーポイント
-  def self.call(reservations:, base_date:)
-    new(reservations:, base_date:).call
-  end
-  # 初期化し予約データと期間をセット
-  def initialize(reservations:, base_date:)
-    @reservations = reservations
-    @base_date = base_date.to_date
-  end
-  # 
-  def call
-    # 全期間の来店回数と、最新の来店日を取得
-    total_visit_count = @reservations.count
-    last_visit_at = @reservations.maximum(:visited_at)
+  # 集計期間: 5年
+  AGGREGATION_PERIOD_DAYS = 1825
 
-    # ランク対象外：一度も来店がない場合は "OUT"
-    return build_result("OUT", total_visit_count, last_visit_at, 0) if last_visit_at.nil?
-    # 最新来店日からの経過日数
-    days_since_last = (@base_date - last_visit_at.to_date).to_i
-    # 最後の来店から10年（3650日）以上経過している場合は "OUT"
-    return build_result("OUT", total_visit_count, last_visit_at, 0) if days_since_last > 3650
-    # 直近1年間（基準日から遡って365日以内）の来店回数をカウント
-    visits_within_1_year = @reservations.where("visited_at >= ? AND visited_at <= ?", @base_date - 365.days, @base_date.end_of_day).count
-    # ランク判定ロジックを呼び出し
+  # 判定用期間
+  ONE_YEAR_DAYS = 365
+  THREE_MONTHS_DAYS = 90
+  TWO_YEARS_DAYS = 730
+  FOUR_YEARS_DAYS = 1460
+
+  # クラスメソッドで呼び出せるようにする
+  # 例: RfRankRule.call(reservations: reservations, base_date: Time.current)
+  def self.call(reservations:, base_date:)
+    new.call(reservations: reservations, base_date: base_date)
+  end
+
+  # メイン処理
+  def call(reservations:, base_date:)
+    # 基準日は Date にそろえる
+    normalized_base_date = base_date.to_date
+
+    # 全期間の来店回数
+    total_visit_count = reservations.count
+
+    # 最終来店日
+    last_visit_at = reservations.maximum(:visited_at)
+
+    # 来店履歴がない場合は空白（対象外）
+    return build_result(
+      rank: "",
+      total_visit_count: total_visit_count,
+      last_visit_at: last_visit_at,
+      visits_within_1_year: 0,
+      visits_within_3_months: 0
+    ) if last_visit_at.nil?
+
+    # 最終来店日から基準日までの経過日数
+    days_since_last = (normalized_base_date - last_visit_at.to_date).to_i
+
+    # 5年以上来店がない場合は空白（対象外）
+    return build_result(
+      rank: "",
+      total_visit_count: total_visit_count,
+      last_visit_at: last_visit_at,
+      visits_within_1_year: 0,
+      visits_within_3_months: 0
+    ) if days_since_last >= AGGREGATION_PERIOD_DAYS
+
+    # 直近1年・直近3ヶ月の集計範囲
+    one_year_start = normalized_base_date - ONE_YEAR_DAYS.days
+    three_months_start = normalized_base_date - THREE_MONTHS_DAYS.days
+    range_end = normalized_base_date.end_of_day
+
+    # 直近1年以内の来店回数
+    visits_within_1_year = reservations.where(
+      visited_at: one_year_start..range_end
+    ).count
+
+    # 直近3ヶ月以内の来店回数
+    visits_within_3_months = reservations.where(
+      visited_at: three_months_start..range_end
+    ).count
+
+    # ランク判定
     rank = calculate_rank(
       visits_within_1_year: visits_within_1_year,
-      total_visit_count: total_visit_count,
+      visits_within_3_months: visits_within_3_months,
       days_since_last: days_since_last
     )
-    # 判定結果をハッシュ形式で返す
-    build_result(rank, total_visit_count, last_visit_at, visits_within_1_year)
+
+    # 呼び出し元で使いやすいようにまとめて返す
+    build_result(
+      rank: rank,
+      total_visit_count: total_visit_count,
+      last_visit_at: last_visit_at,
+      visits_within_1_year: visits_within_1_year,
+      visits_within_3_months: visits_within_3_months
+    )
   end
 
   private
-  # ランク判定の具体的な条件
-  def calculate_rank(visits_within_1_year:, total_visit_count:, days_since_last:)
-    # マスタデータから基準となる来店回数を取得
-    a_master = RfMaster.find_by(rank: "A")
-    b_master = RfMaster.find_by(rank: "B")
-    e_master = RfMaster.find_by(rank: "E")
 
-    a_min = a_master&.min_visit_count || 12 # Aランクは、年間12回以上
-    b_min = b_master&.min_visit_count || 8  # Bランクは、年間8回以上
-    b_max = b_master&.max_visit_count
-    e_min = e_master&.min_visit_count || 1 # Eランクは、初回のみ
+  # ランク判定本体
+  def calculate_rank(visits_within_1_year:, visits_within_3_months:, days_since_last:)
+    # A:
+    # 直近1年で13回以上来店
+    return "A" if visits_within_1_year >= 13
 
-    # 直近1年間の来店回数による判定 （上位ランク優先）
-    return "A" if visits_within_1_year >= a_min
-    return "B" if visits_within_1_year >= b_min && (b_max.nil? || visits_within_1_year <= b_max)
-    return "E" if visits_within_1_year == e_min && total_visit_count == 1
-    # 3年以上〜5年以内に来店がない
-    return "D" if days_since_last > 365 * 3 && days_since_last <= 1825
-    # 5年以上〜10年以内に来店がない
-    return "Z" if days_since_last > 1825 && days_since_last <= 3650
-    # 上記のいずれにも当てはまらない場合はCランク
+    # B:
+    # 直近3ヶ月以内に来店あり
+    # かつ 直近1年で8回以上12回以下
+    if visits_within_3_months >= 1 &&
+        visits_within_1_year >= 8 &&
+        visits_within_1_year <= 12
+        return "B"
+    end
+
+    # E:
+    # 直近1年以内に来店が1回だけ
+    return "E" if visits_within_1_year == 1
+
+    # D:
+    # 2年以上〜4年未満来店がない
+    return "D" if days_since_last >= TWO_YEARS_DAYS &&
+                  days_since_last < FOUR_YEARS_DAYS
+
+    # F:
+    # 4年以上〜5年未満来店がない
+    return "F" if days_since_last >= FOUR_YEARS_DAYS &&
+                  days_since_last < AGGREGATION_PERIOD_DAYS
+
+    # C:
+    # 上記いずれにも当てはまらない顧客
     "C"
   end
-  # レスポンスハッシュの整形
-  def build_result(rank, total_visit_count, last_visit_at, visits_within_1_year)
+
+  # 戻り値整形
+  def build_result(rank:, total_visit_count:, last_visit_at:, visits_within_1_year:, visits_within_3_months:)
     {
-      rank: rank, # 判定されたランク
-      total_visit_count: total_visit_count, # 全期間の来店数
-      last_visit_at: last_visit_at, # 最終来店日
-      visits_within_1_year: visits_within_1_year # 直近１年の来店数
+      rank: rank,
+      total_visit_count: total_visit_count,
+      last_visit_at: last_visit_at,
+      visits_within_1_year: visits_within_1_year,
+      visits_within_3_months: visits_within_3_months
     }
   end
 end
