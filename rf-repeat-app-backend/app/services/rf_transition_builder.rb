@@ -31,14 +31,14 @@ class RfTransitionBuilder
 
     # 分析の基準となる月から5年前の月の範囲内の予約を取得する関数
     reservations = Reservation.where(visited_at: period[:start]..period[:end])
-    customer_ids = reservations.select(:customer_id).distinct.pluck(:customer_id)
 
     current_counts = Hash.new(0)
     previous_counts = Hash.new(0)
+    reservations_by_customer = reservations.to_a.group_by(&:customer_id)
 
     # 分析の基準となる月から5年前の月の範囲内の予約をした顧客ごとに、行と列のキーを判定して、セルのハッシュを更新する関数
-    customer_ids.each do |customer_id|
-      customer_reservations = reservations.where(customer_id: customer_id)
+    reservations_by_customer.each do |customer_id, customer_reservations|
+      customer_reservations = reservations_by_customer[customer_id]
       # 分析の基準となる月の末日を基準にして、行と列のキーを判定する関数
       current_result = RfRankRule.call(
         reservations: customer_reservations,
