@@ -1,5 +1,5 @@
 class RfTransitionBuilder
-  RANK = [
+  RANKS = [
     { key: "A", label: "Aランク" },
     { key: "B", label: "Bランク" },
     { key: "C", label: "Cランク" },
@@ -19,10 +19,10 @@ class RfTransitionBuilder
     current_base_month = base_month
     # 分析の基準となる月の末日を求める関数
     current_base_date = current_base_month.end_of_month
-    # 分析基準となる月と同じ月のラベルと、1年前の同じ月のラベルを作る関数
+    # 分析基準付きの前日末日を求める関数
     previous_base_date = (current_base_month - 1.month).end_of_month
 
-    # 分析基準となる月と同じ月のラベルと、1年前の同じ月のラベルを作る関数
+    # 当月と今月のラベルを作成する関数
     current_month_label = current_base_month.strftime("%Y年%m月")
     previous_month_label = (current_base_month - 1.month).strftime("%Y年%m月")
 
