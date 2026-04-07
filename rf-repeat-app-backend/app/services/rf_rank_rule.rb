@@ -23,7 +23,7 @@ class RfRankRule
     total_visit_count = reservations.count
 
     # 最終来店日
-    last_visit_at = reservations.maximum(:visited_at)
+    last_visit_at = reservations.max_by(&:visited_at)&.visited_at
 
     # 来店履歴がない場合は空白（対象外）
     return build_result(
@@ -52,14 +52,14 @@ class RfRankRule
     range_end = normalized_base_date.end_of_day
 
     # 直近1年以内の来店回数
-    visits_within_1_year = reservations.where(
-      visited_at: one_year_start..range_end
-    ).count
+    visits_within_1_year = reservations.count do |reservation|
+      reservation.visited_at >= one_year_start && reservation.visited_at <= range_end
+    end
 
     # 直近3ヶ月以内の来店回数
-    visits_within_3_months = reservations.where(
-      visited_at: three_months_start..range_end
-    ).count
+    visits_within_3_months = reservations.count do |reservation|
+      reservation.visited_at >= three_months_start && reservation.visited_at <= range_end
+    end
 
     # ランク判定
     rank = calculate_rank(

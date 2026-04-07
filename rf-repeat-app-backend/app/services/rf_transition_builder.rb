@@ -5,7 +5,7 @@ class RfTransitionBuilder
     { key: "C", label: "Cランク" },
     { key: "D", label: "Dランク" },
     { key: "E", label: "Eランク" },
-    { key: "F", label: "Fランク" },
+    { key: "Z", label: "Zランク" },
     { key: "", label: "対象外" }
   ].freeze
 
@@ -38,7 +38,6 @@ class RfTransitionBuilder
 
     # 分析の基準となる月から5年前の月の範囲内の予約をした顧客ごとに、行と列のキーを判定して、セルのハッシュを更新する関数
     reservations_by_customer.each do |customer_id, customer_reservations|
-      customer_reservations = reservations_by_customer[customer_id]
       # 分析の基準となる月の末日を基準にして、行と列のキーを判定する関数
       current_result = RfRankRule.call(
         reservations: customer_reservations,
@@ -53,10 +52,11 @@ class RfTransitionBuilder
       current_counts[current_result[:rank]] += 1
       previous_counts[previous_result[:rank]] += 1
     end
+
     # セルのハッシュをもとに、行と列のキーを判定して、差分の数値と率を計算する関数
     current_total = current_counts.values.sum
     # 行と列のキーをもとに、セルのハッシュを更新する関数
-    rows = RANK.map do |rank|
+    rows = RANKS.map do |rank|
       current_count = current_counts[rank[:key]]
       previous_count = previous_counts[rank[:key]]
       diff_count = current_count - previous_count
