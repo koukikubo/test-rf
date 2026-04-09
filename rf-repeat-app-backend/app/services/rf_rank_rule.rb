@@ -104,9 +104,9 @@ class RfRankRule
     return "D" if days_since_last >= TWO_YEARS_DAYS &&
                   days_since_last < FOUR_YEARS_DAYS
 
-    # F:
+    # Z:
     # 4年以上〜5年未満来店がない
-    return "F" if days_since_last >= FOUR_YEARS_DAYS &&
+    return "Z" if days_since_last >= FOUR_YEARS_DAYS &&
                   days_since_last < AGGREGATION_PERIOD_DAYS
 
     # C:
