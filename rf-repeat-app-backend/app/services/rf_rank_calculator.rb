@@ -19,7 +19,7 @@ class RfRankCalculator
 
     update_rf_score(
       customer, 
-      result[:total_visit_count],
+      result[:lifetime_visit_count],
       result[:last_visit_at],
       result[:rank]
       )

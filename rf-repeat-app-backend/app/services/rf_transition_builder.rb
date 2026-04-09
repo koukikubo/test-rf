@@ -6,7 +6,7 @@ class RfTransitionBuilder
     { key: "D", label: "Dランク" },
     { key: "E", label: "Eランク" },
     { key: "Z", label: "Zランク" },
-    { key: "", label: "対象外" }
+    { key: "N", label: "対象外" }
   ].freeze
 
   # クラスメソッドとして呼び出すためのエントリーポイント
@@ -29,26 +29,27 @@ class RfTransitionBuilder
     # 分析の基準となる月から5年前の月の範囲を求める関数
     period = aggregation_period_range(current_base_month)
 
-    # 分析の基準となる月から5年前の月の範囲内の予約を取得する関数
-    reservations = Reservation.where(visited_at: period[:start]..period[:end])
-
     current_counts = Hash.new(0)
     previous_counts = Hash.new(0)
-    reservations_by_customer = reservations.to_a.group_by(&:customer_id)
 
     # 分析の基準となる月から5年前の月の範囲内の予約をした顧客ごとに、行と列のキーを判定して、セルのハッシュを更新する関数
-    reservations_by_customer.each do |customer_id, customer_reservations|
-      # 分析の基準となる月の末日を基準にして、行と列のキーを判定する関数
+    Customer.includes(:reservations).find_each do |customer|
+      customer_reservations = customer.reservations.select do |reservation|
+        reservation.visited_at.present? &&
+          reservation.visited_at >= period[:start] &&
+          reservation.visited_at <= period[:end]
+      end
+
       current_result = RfRankRule.call(
         reservations: customer_reservations,
         base_date: current_base_date
       )
-      # 前回の分析の基準となる月の末日を基準にして、行と列のキーを判定する関数
+
       previous_result = RfRankRule.call(
         reservations: customer_reservations,
         base_date: previous_base_date
       )
-      # 行と列のキーをもとに、セルのハッシュを更新する関数
+
       current_counts[current_result[:rank]] += 1
       previous_counts[previous_result[:rank]] += 1
     end
@@ -103,7 +104,7 @@ class RfTransitionBuilder
   # 集計期間５年に設定
   def aggregation_period_range(base_month)
     period_end = base_month.end_of_month
-    period_start = (base_month - 5.years + 1.month).beginning_of_month
+    period_start = (base_month - RfRankRule.aggregation_period + 1.month).beginning_of_month
     { start: period_start, end: period_end }
   end
 end
