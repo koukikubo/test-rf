@@ -14,7 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { rankColor, rankLabel, rankMeaning } from "@/lib/rf-master-format";
+import { rankColor } from "@/lib/rf-master-format";
 import { KpiGrid } from "../kpi/kpi_grid";
 
 type TransitionRow = {
@@ -42,6 +42,14 @@ type Kpi = {
 type Props = {
   transition: RfTransitionResponse;
   kpis: Kpi[];
+  rankMaster: RankMaster[];
+};
+
+type RankMaster = {
+  key: string;
+  label: string;
+  description: string;
+  order: number;
 };
 
 function diffTextColor(diffCount: number): string {
@@ -59,7 +67,13 @@ function formatDiffRate(diffRate: number | null): string {
   return `${diffRate > 0 ? "+" : ""}${diffRate}%`;
 }
 
-export default function RfTransitionCard({ transition, kpis }: Props) {
+export default function RfTransitionCard({
+  transition,
+  kpis,
+  rankMaster,
+}: Props) {
+  const rankMap = Object.fromEntries(rankMaster.map((r) => [r.key, r]));
+
   return (
     <Card>
       <KpiGrid kpis={kpis} />
@@ -84,16 +98,14 @@ export default function RfTransitionCard({ transition, kpis }: Props) {
                     <span
                       className={`inline-block h-4 w-4 rounded ${rankColor(row.rank_key)}`}
                     />
-                    <span>{rankLabel(row.rank_label)}</span>
+                    <span>
+                      {rankMap[row.rank_label]?.label ?? row.rank_label}
+                    </span>
                   </button>
                 </TooltipTrigger>
 
                 <TooltipContent className="max-w-xs">
-                  <p>
-                    {row.rank_key === ""
-                      ? "集計期間対象外の顧客です。"
-                      : rankMeaning(row.rank_key)}
-                  </p>
+                  <p>{rankMap[row.rank_key]?.description ?? ""}</p>
                 </TooltipContent>
               </Tooltip>
             ))}
@@ -125,7 +137,9 @@ export default function RfTransitionCard({ transition, kpis }: Props) {
                       <span
                         className={`inline-block h-4 w-4 rounded ${rankColor(row.rank_key)}`}
                       />
-                      <span>{rankLabel(row.rank_label)}</span>
+                      <span>
+                        {rankMap[row.rank_key]?.label ?? row.rank_label}
+                      </span>
                     </div>
                   </TableCell>
                   <TableCell className="text-right">

@@ -11,10 +11,18 @@ type TransitionRow = {
   current_percentage: number;
 };
 
+type RankMaster = {
+  key: string;
+  label: string;
+  description: string;
+  order: number;
+};
+
 type RfTransitionResponse = {
   current_month_label: string;
   previous_month_label: string;
   rows: TransitionRow[];
+  rank_master: RankMaster[];
 };
 
 async function getRfTransition(): Promise<RfTransitionResponse> {
@@ -38,10 +46,15 @@ async function getRfTransition(): Promise<RfTransitionResponse> {
 export default async function RfTransitionPage() {
   const transition = await getRfTransition();
   const kpis = buildRfKpis(transition);
+  const rankMaster = transition.rank_master;
 
   return (
     <main className="p-6">
-      <RfTransitionCard transition={transition} kpis={kpis} />
+      <RfTransitionCard
+        transition={transition}
+        kpis={kpis}
+        rankMaster={rankMaster}
+      />
     </main>
   );
 }

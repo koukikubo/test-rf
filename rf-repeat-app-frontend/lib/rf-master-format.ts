@@ -100,27 +100,6 @@ export function rankLabel(rank: string): string {
   }
 }
 
-export function rankMeaning(rank: string): string {
-  switch (rank) {
-    case "A":
-      return "直近１年以内に13回以上来店がある顧客です。";
-    case "B":
-      return "直近１年かつ３ヶ月以内に来店があり8回以上の来店がある顧客です。";
-    case "C":
-      return "他のランクに当てはまらない客層群です。";
-    case "D":
-      return "２年〜４年来店がない顧客です。";
-    case "E":
-      return "新規顧客：直近1年以内に初回来店顧客です。";
-    case "Z":
-      return "ランク外：集計期間内に履歴はあるものの、優先ランク条件には当てはまらない顧客です。";
-    case "OUT":
-      return "対象外：集計期間の対象外となる顧客です。";
-    default:
-      return "";
-  }
-}
-
 // 汎用：日付を日本語形式で表示するための関数
 export function formatDateTime(dateString: string): string {
   const date = new Date(dateString);
