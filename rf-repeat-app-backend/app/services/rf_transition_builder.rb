@@ -1,14 +1,4 @@
 class RfTransitionBuilder
-  RANKS = [
-    { key: "A", label: "Aランク" },
-    { key: "B", label: "Bランク" },
-    { key: "C", label: "Cランク" },
-    { key: "D", label: "Dランク" },
-    { key: "E", label: "Eランク" },
-    { key: "Z", label: "Zランク" },
-    { key: "N", label: "対象外" }
-  ].freeze
-
   # クラスメソッドとして呼び出すためのエントリーポイント
   def self.call
     new.call
@@ -57,7 +47,7 @@ class RfTransitionBuilder
     # セルのハッシュをもとに、行と列のキーを判定して、差分の数値と率を計算する関数
     current_total = current_counts.values.sum
     # 行と列のキーをもとに、セルのハッシュを更新する関数
-    rows = RANKS.map do |rank|
+    rows = RfRankMaster.all.map do |rank|
       current_count = current_counts[rank[:key]]
       previous_count = previous_counts[rank[:key]]
       diff_count = current_count - previous_count
@@ -92,7 +82,8 @@ class RfTransitionBuilder
     {
       current_month_label: current_month_label,
       previous_month_label: previous_month_label,
-      rows: rows
+      rows: rows,
+      rank_master: RfRankMaster.all
     }
   end
 
