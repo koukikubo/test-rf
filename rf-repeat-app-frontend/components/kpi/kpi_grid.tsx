@@ -1,17 +1,17 @@
 import { KpiCard } from "./kpi_card";
 
 type Props = {
-  data: {
+  kpis: {
     title: string;
     value: string | number;
-    diff?: number;
+    diff?: number | null;
   }[];
 };
 
-export const KpiGrid = ({ data }: Props) => {
+export const KpiGrid = ({ kpis }: Props) => {
   return (
     <div className="grid gap-4 md:grid-cols-3">
-      {data.map((item, i) => (
+      {kpis.map((item, i) => (
         <KpiCard key={i} {...item} />
       ))}
     </div>

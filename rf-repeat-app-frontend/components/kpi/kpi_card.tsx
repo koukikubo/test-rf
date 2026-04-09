@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 type Props = {
   title: string;
   value: string | number;
-  diff?: number;
+  diff?: number | null;
 };
 
 export const KpiCard = ({ title, value, diff }: Props) => {
