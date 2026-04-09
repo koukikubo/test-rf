@@ -15,6 +15,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { rankColor, rankLabel, rankMeaning } from "@/lib/rf-master-format";
+import { KpiGrid } from "../kpi/kpi_grid";
 
 type TransitionRow = {
   rank_key: string;
@@ -32,8 +33,15 @@ type RfTransitionResponse = {
   rows: TransitionRow[];
 };
 
+type Kpi = {
+  title: string;
+  value: string | number;
+  diff?: number | null;
+};
+
 type Props = {
   transition: RfTransitionResponse;
+  kpis: Kpi[];
 };
 
 function diffTextColor(diffCount: number): string {
@@ -51,9 +59,10 @@ function formatDiffRate(diffRate: number | null): string {
   return `${diffRate > 0 ? "+" : ""}${diffRate}%`;
 }
 
-export default function RfTransitionCard({ transition }: Props) {
+export default function RfTransitionCard({ transition, kpis }: Props) {
   return (
     <Card>
+      <KpiGrid kpis={kpis} />
       <CardHeader>
         <CardTitle>RF推移表</CardTitle>
         <div className="space-y-1 text-sm text-muted-foreground">

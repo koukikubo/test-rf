@@ -1,4 +1,5 @@
 import RfTransitionCard from "@/components/rf/rf-transition";
+import { buildRfKpis } from "@/lib/rf/build-rf-kpis";
 
 type TransitionRow = {
   rank_key: string;
@@ -31,15 +32,16 @@ async function getRfTransition(): Promise<RfTransitionResponse> {
     throw new Error("RFMマトリクスの取得に失敗しました");
   }
 
-  return res.json();
+  return (await res.json()) as RfTransitionResponse;
 }
 
 export default async function RfTransitionPage() {
   const transition = await getRfTransition();
+  const kpis = buildRfKpis(transition);
 
   return (
     <main className="p-6">
-      <RfTransitionCard transition={transition} />
+      <RfTransitionCard transition={transition} kpis={kpis} />
     </main>
   );
 }
