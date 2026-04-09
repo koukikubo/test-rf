@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/tooltip";
 import { rankColor } from "@/lib/rf-master-format";
 import { KpiGrid } from "../kpi/kpi_grid";
+import Link from "next/link";
 
 type TransitionRow = {
   rank_key: string;
@@ -134,12 +135,19 @@ export default function RfTransitionCard({
                 <TableRow key={row.rank_key || "out_of_scope"}>
                   <TableCell className="font-medium">
                     <div className="flex items-center gap-2">
-                      <span
-                        className={`inline-block h-4 w-4 rounded ${rankColor(row.rank_key)}`}
-                      />
-                      <span>
-                        {rankMap[row.rank_key]?.label ?? row.rank_label}
-                      </span>
+                      <Link
+                        href={`/rf-target-customers?month=${encodeURIComponent(
+                          transition.current_month_label,
+                        )}&rank=${encodeURIComponent(row.rank_key)}`}
+                        className="flex items-center gap-2"
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 rounded ${rankColor(row.rank_key)}`}
+                        />
+                        <span>
+                          {rankMap[row.rank_key]?.label ?? row.rank_label}
+                        </span>
+                      </Link>
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
