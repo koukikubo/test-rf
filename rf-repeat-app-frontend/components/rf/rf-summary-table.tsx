@@ -7,6 +7,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { rankLabel } from "@/lib/rf-master-format";
+import RfSummaryChart from "./rf-summary-chart";
 
 type RankSummary = {
   rank: string;
@@ -28,6 +29,9 @@ type Props = {
 export default function RfRankSummaryTable({ summary }: Props) {
   return (
     <div className="space-y-6">
+      <div className="max-w-3xl mx-auto">
+        <RfSummaryChart ranks={summary.ranks} />
+      </div>
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
