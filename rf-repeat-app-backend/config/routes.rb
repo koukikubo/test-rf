@@ -7,6 +7,7 @@ Rails.application.routes.draw do
       resources :rf_transitions, only: [:index]
       resources :rf_masters, only: [:index, :show, :update]
       resources :rf_rank_summaries, only: [:index]
+      resources :rf_rank_fluctuations, only: [:index]
     end
   end
 end
