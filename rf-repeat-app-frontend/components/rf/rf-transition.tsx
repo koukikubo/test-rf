@@ -100,7 +100,7 @@ export default function RfTransitionCard({
                       className={`inline-block h-4 w-4 rounded ${rankColor(row.rank_key)}`}
                     />
                     <span>
-                      {rankMap[row.rank_label]?.label ?? row.rank_label}
+                      {rankMap[row.rank_key]?.label ?? row.rank_label}
                     </span>
                   </button>
                 </TooltipTrigger>
