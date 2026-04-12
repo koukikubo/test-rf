@@ -109,11 +109,11 @@ function movementCellClass(
   if (count === 0) return "bg-background";
   switch (type) {
     case "up":
-      return "bg-emerald-50";
+      return "bg-emerald-400 border border-emerald-600";
     case "stay":
-      return "bg-slate-100";
+      return "bg-slate-300 border border-slate-500";
     case "down":
-      return "bg-rose-50";
+      return "bg-rose-400 border border-rose-600";
     default:
       return "bg-background";
   }
@@ -153,15 +153,15 @@ export default function RfRankMovementBuilder({ movement }: Props) {
 
         <div className="mb-4 flex flex-wrap gap-4 text-sm">
           <div className="flex items-center gap-2">
-            <span className="inline-block h-4 w-4 rounded bg-emerald-50 border" />
+            <span className="inline-block h-4 w-4 rounded bg-emerald-400 border border-emerald-600" />
             <span>ランク上昇</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="inline-block h-4 w-4 rounded bg-slate-100 border" />
+            <span className="inline-block h-4 w-4 rounded bg-slate-300 border border-slate-500" />
             <span>ランク維持</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="inline-block h-4 w-4 rounded bg-rose-50 border" />
+            <span className="inline-block h-4 w-4 rounded bg-rose-400 border border-rose-600" />
             <span>ランク下降</span>
           </div>
         </div>
