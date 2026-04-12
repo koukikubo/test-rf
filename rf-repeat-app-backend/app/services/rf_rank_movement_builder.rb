@@ -14,6 +14,7 @@ class RfRankMovementBuilder
     previous_month_label = (current_base_month - 1.month).strftime("%Y年%m月")
 
     matrix = build_empty_matrix
+    customer_ids_matrix = build_empty_customer_ids_matrix
 
     Customer.includes(:reservations).find_each do |customer|
       customer_reservations = customer.reservations.select do |reservation|
@@ -34,6 +35,8 @@ class RfRankMovementBuilder
       to_rank = current_result[:rank]
 
       matrix[from_rank][to_rank] += 1
+      # 顧客IDを対応するセルに追加（特定顧客ID）
+      customer_ids_matrix[from_rank][to_rank] << customer.id
     end
 
     total_count = matrix.values.sum { |row| row.values.sum }
@@ -47,6 +50,8 @@ class RfRankMovementBuilder
 
       RANKS.each do |to_rank|
         count = matrix[from_rank[:key]][to_rank[:key]]
+        # 特定顧客IDを取得
+        customer_ids = customer_ids_matrix[from_rank[:key]][to_rank[:key]]
         row_total += count
         col_totals[to_rank[:key]] += count
 
@@ -63,7 +68,9 @@ class RfRankMovementBuilder
           to_rank_key: to_rank[:key],
           to_rank_label: to_rank[:label],
           count: count,
-          percentage: percentage
+          percentage: percentage,
+          # 特定顧客IDをセルに含める
+          customer_ids: customer_ids
         }
       end
 
@@ -122,6 +129,14 @@ class RfRankMovementBuilder
     RANKS.each_with_object({}) do |from_rank, outer_hash|
       outer_hash[from_rank[:key]] = RANKS.each_with_object({}) do |to_rank, inner_hash|
         inner_hash[to_rank[:key]] = 0
+      end
+    end
+  end
+  # 顧客IDの行列を初期化する関数
+  def build_empty_customer_ids_matrix
+    RANKS.each_with_object({}) do |from_rank, outer_hash|
+      outer_hash[from_rank[:key]] = RANKS.each_with_object({}) do |to_rank, inner_hash|
+        inner_hash[to_rank[:key]] = []
       end
     end
   end
