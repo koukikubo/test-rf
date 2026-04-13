@@ -1,6 +1,7 @@
 import RfTransitionCard from "@/components/rf/rf-transition";
 import { buildRfKpis } from "@/lib/rf/build-rf-kpis";
-import RfRankMovementBuilder from "@/components/rf/rf_rank_movement_builder";
+import RfRankMovementBuilder from "@/components/rf/movement_builder/rf_rank_movement_builder";
+import { RankMaster, RfMovementResponse } from "@/types/rf/movement_builder";
 
 type TransitionRow = {
   rank_key: string;
@@ -12,45 +13,11 @@ type TransitionRow = {
   current_percentage: number;
 };
 
-type RankMaster = {
-  key: string;
-  label: string;
-  description: string;
-  order: number;
-};
-
 type RfTransitionResponse = {
   current_month_label: string;
   previous_month_label: string;
   rows: TransitionRow[];
   rank_master: RankMaster[];
-};
-
-type MovementCell = {
-  from_rank_key: string;
-  from_rank_label: string;
-  to_rank_key: string;
-  to_rank_label: string;
-  count: number;
-  percentage: number;
-};
-
-type MovementTotal = {
-  rank_key: string;
-  rank_label: string;
-  count: number;
-  percentage: number;
-};
-
-type RfMovementResponse = {
-  current_month_label: string;
-  previous_month_label: string;
-  row_ranks: RankMaster[];
-  col_ranks: RankMaster[];
-  cells: MovementCell[];
-  row_totals: MovementTotal[];
-  col_totals: MovementTotal[];
-  grand_total: number;
 };
 
 async function getRfTransition(): Promise<RfTransitionResponse> {
