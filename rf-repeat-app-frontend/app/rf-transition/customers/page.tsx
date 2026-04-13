@@ -37,6 +37,8 @@ function modeLabel(mode: string): string {
       return "今月人数";
     case "changed":
       return "変動人数";
+    case "selected":
+      return "選択人数";
     default:
       return "未設定";
   }
@@ -112,13 +114,29 @@ function extractCustomerIds(
 export default async function RfmTargetCustomersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ mode?: string; month?: string; rank?: string }>;
+  searchParams: Promise<{
+    mode?: string;
+    month?: string;
+    rank?: string;
+    ids?: string;
+  }>;
 }) {
-  const { mode = "", month = "", rank = "" } = await searchParams;
+  const { mode = "", month = "", rank = "", ids = "" } = await searchParams;
+  const selectedIds = ids
+    .split(",")
+    .map((id) => Number(id))
+    .filter((id) => !Number.isNaN(id));
 
-  const fluctuation = await getFluctuations();
-  const ids = extractCustomerIds(fluctuation, mode, rank);
-  const customers: Customer[] = await getCustomersByIds(ids);
+  let customerIds: number[] = [];
+
+  if (selectedIds.length > 0) {
+    customerIds = selectedIds;
+  } else {
+    const fluctuation = await getFluctuations();
+    customerIds = extractCustomerIds(fluctuation, mode, rank);
+  }
+
+  const customers = await getCustomersByIds(customerIds);
 
   return (
     <main className="p-6">

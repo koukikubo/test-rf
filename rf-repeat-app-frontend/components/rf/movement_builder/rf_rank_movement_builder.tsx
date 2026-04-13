@@ -1,3 +1,5 @@
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -7,46 +9,25 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "../ui/tooltip";
+} from "../../ui/tooltip";
 
-type RankMaster = {
-  key: string;
-  label: string;
-  description?: string;
-  order?: number;
-};
+import {
+  MovementCell,
+  MovementTotal,
+  RankMaster,
+  RfMovementResponse,
+} from "@/types/rf/movement_builder";
 
-type MovementCell = {
-  from_rank_key: string;
-  from_rank_label: string;
-  to_rank_key: string;
-  to_rank_label: string;
-  count: number;
-  percentage: number;
-};
-
-type MovementTotal = {
-  rank_key: string;
-  rank_label: string;
-  count: number;
-  percentage: number;
-};
-
-type RfMovementResponse = {
-  current_month_label: string;
-  previous_month_label: string;
-  row_ranks: RankMaster[];
-  col_ranks: RankMaster[];
-  cells: MovementCell[];
-  row_totals: MovementTotal[];
-  col_totals: MovementTotal[];
-  grand_total: number;
-};
+import { Button } from "@/components/ui/button";
+import { useMovementSelection } from "./hooks/useMovementSelection";
+import { useMemo } from "react";
+import { useRouter } from "next/navigation";
 
 type Props = {
   movement: RfMovementResponse;
@@ -105,18 +86,29 @@ function getMovementType(
 function movementCellClass(
   type: "up" | "stay" | "down" | "unknown",
   count: number,
+  selected: boolean,
 ): string {
-  if (count === 0) return "bg-background";
-  switch (type) {
-    case "up":
-      return "bg-emerald-400 border border-emerald-600";
-    case "stay":
-      return "bg-slate-300 border border-slate-500";
-    case "down":
-      return "bg-rose-400 border border-rose-600";
-    default:
-      return "bg-background";
+  if (count === 0) {
+    return selected
+      ? "bg-slate-100 ring-2 ring-blue-500"
+      : "bg-background text-muted-foreground";
   }
+
+  const base =
+    "transition-colors border border-transparent hover:opacity-90 cursor-pointer";
+
+  const byType =
+    type === "up"
+      ? "bg-emerald-400 border-emerald-600"
+      : type === "stay"
+        ? "bg-slate-300 border-slate-500"
+        : type === "down"
+          ? "bg-rose-400 border-rose-600"
+          : "bg-background";
+
+  return selected
+    ? `${base} ${byType} ring-2 ring-blue-500`
+    : `${base} ${byType}`;
 }
 
 function movementLabel(type: "up" | "stay" | "down" | "unknown"): string {
@@ -133,7 +125,32 @@ function movementLabel(type: "up" | "stay" | "down" | "unknown"): string {
 }
 
 export default function RfRankMovementBuilder({ movement }: Props) {
-  const rankOrderMap = buildRankOrderMap(movement.row_ranks);
+  const router = useRouter();
+
+  const {
+    toggleCell,
+    clearSelection,
+    isSelected,
+    selectedCustomerIds,
+    selectedCount,
+  } = useMovementSelection({ movement });
+
+  const rankOrderMap = useMemo(
+    () => buildRankOrderMap(movement.row_ranks),
+    [movement.row_ranks],
+  );
+
+  const handleShowCustomers = () => {
+    if (selectedCustomerIds.length === 0) return;
+
+    const params = new URLSearchParams({
+      mode: "selected",
+      month: movement.current_month_label,
+      ids: selectedCustomerIds.join(","),
+    });
+
+    router.push(`/rf-transition/customers?${params.toString()}`);
+  };
 
   return (
     <Card>
@@ -164,6 +181,29 @@ export default function RfRankMovementBuilder({ movement }: Props) {
             <span className="inline-block h-4 w-4 rounded bg-rose-400 border border-rose-600" />
             <span>ランク下降</span>
           </div>
+        </div>
+
+        <div className="mb-4 flex flex-wrap items-center gap-3">
+          <Button
+            type="button"
+            onClick={handleShowCustomers}
+            disabled={selectedCustomerIds.length === 0}
+          >
+            選択した顧客を表示 ({selectedCustomerIds.length}人)
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            onClick={clearSelection}
+            disabled={selectedCount === 0}
+          >
+            選択解除
+          </Button>
+
+          <p className="text-sm text-muted-foreground">
+            選択セル数: {selectedCount}
+          </p>
         </div>
 
         <TooltipProvider>
@@ -219,17 +259,23 @@ export default function RfRankMovementBuilder({ movement }: Props) {
                           toRank.key,
                           rankOrderMap,
                         );
+                        const selected = isSelected(fromRank.key, toRank.key);
 
                         return (
                           <TableCell
                             key={`${fromRank.key}-${toRank.key}`}
-                            className={`text-center align-middle ${movementCellClass(type, count)}`}
+                            className={`text-center align-middle ${movementCellClass(type, count, selected)}`}
                           >
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <button
                                   type="button"
                                   className="w-full rounded px-2 py-2 text-center"
+                                  disabled={count === 0}
+                                  onClick={() => {
+                                    if (count === 0) return;
+                                    toggleCell(fromRank.key, toRank.key);
+                                  }}
                                 >
                                   <div className="font-medium">{count}</div>
                                   <div className="text-xs text-muted-foreground">
@@ -247,6 +293,11 @@ export default function RfRankMovementBuilder({ movement }: Props) {
                                   <p>
                                     {count}人 / {formatPercentage(percentage)}
                                   </p>
+                                  {count > 0 && (
+                                    <p className="text-muted-foreground">
+                                      クリックで選択
+                                    </p>
+                                  )}
                                 </div>
                               </TooltipContent>
                             </Tooltip>
