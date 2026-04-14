@@ -122,11 +122,14 @@ export default async function RfmTargetCustomersPage({
   }>;
 }) {
   const { mode = "", month = "", rank = "", ids = "" } = await searchParams;
-  const selectedIds = ids
-    .split(",")
-    .map((id) => Number(id))
-    .filter((id) => !Number.isNaN(id));
-
+  const selectedIds =
+    ids && ids.length > 0
+      ? ids
+          .split(",")
+          .filter((id) => id !== "")
+          .map((id) => Number(id))
+          .filter((id) => Number.isInteger(id) && id > 0)
+      : [];
   let customerIds: number[] = [];
 
   if (selectedIds.length > 0) {
