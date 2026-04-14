@@ -20,50 +20,6 @@ export function formatTargetPeriod(days: number) {
   return `直近${daysToYearsText(days)}以内`;
 }
 
-// RFマスタの説明文のフォーマット
-export function buildRfDescription(params: {
-  rank: string;
-  min_visit_count: number;
-  max_visit_count: number | null;
-  aggregation_period_days: number;
-  target_period_days: number;
-}) {
-  const { rank, min_visit_count, max_visit_count } = params;
-
-  if (rank === "A") {
-    return `直近10年の来店履歴を対象に、直近1年以内に${min_visit_count}回以上来店している顧客をランクA（超常連顧客）として判定します。`;
-  }
-
-  if (rank === "B") {
-    if (max_visit_count === null) {
-      return `直近10年の来店履歴を対象に、直近1年以内に${min_visit_count}回以上来店している顧客をランクB（常連客）として判定します。`;
-    }
-
-    return `直近10年の来店履歴を対象に、直近1年以内に${min_visit_count}回以上${max_visit_count}回以下来店している顧客をランクB（常連客）として判定します。`;
-  }
-
-  if (rank === "C") {
-    return "直近10年の来店履歴を対象に、A・B・D・E・Z・対象外のいずれにも該当しない顧客をランクCとして判定します。";
-  }
-
-  if (rank === "D") {
-    return "過去に来店実績があり、直近3年以上5年以内に来店がない顧客をランクD（休眠客）として判定します。";
-  }
-
-  if (rank === "E") {
-    return "直近10年の来店履歴を対象に、直近1年以内に1回来店し、かつ累計来店回数が1回の顧客をランクE（新規顧客）として判定します。";
-  }
-
-  if (rank === "Z") {
-    return "過去に来店実績があるものの、直近5年以上10年以内に来店がない顧客をランクZ（ランク外）として判定します。";
-  }
-
-  if (rank === "OUT") {
-    return "集計期間10年の対象外顧客です。";
-  }
-  return "条件未設定です。";
-}
-
 // ランク色のフォーマット
 export const RANK_COLOR_MAP: Record<string, string> = {
   A: "bg-green-600",
@@ -72,7 +28,7 @@ export const RANK_COLOR_MAP: Record<string, string> = {
   D: "bg-yellow-300",
   E: "bg-orange-300",
   Z: "bg-gray-300",
-  OUT: "bg-slate-300",
+  対象外: "bg-slate-300",
 };
 
 export function rankColor(rank: string): string {
@@ -93,7 +49,7 @@ export function rankLabel(rank: string): string {
       return "E";
     case "Z":
       return "ランク外";
-    case "OUT":
+    case "対象外":
       return "集計期間対象外";
     default:
       return rank;

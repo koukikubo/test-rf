@@ -100,7 +100,7 @@ export default function RfTransitionCard({
                       className={`inline-block h-4 w-4 rounded ${rankColor(row.rank_key)}`}
                     />
                     <span>
-                      {rankMap[row.rank_label]?.label ?? row.rank_label}
+                      {rankMap[row.rank_key]?.label ?? row.rank_label}
                     </span>
                   </button>
                 </TooltipTrigger>
@@ -135,37 +135,57 @@ export default function RfTransitionCard({
                 <TableRow key={row.rank_key || "out_of_scope"}>
                   <TableCell className="font-medium">
                     <div className="flex items-center gap-2">
-                      <Link
-                        href={`/rf-target-customers?month=${encodeURIComponent(
-                          transition.current_month_label,
-                        )}&rank=${encodeURIComponent(row.rank_key)}`}
-                        className="flex items-center gap-2"
-                      >
-                        <span
-                          className={`inline-block h-4 w-4 rounded ${rankColor(row.rank_key)}`}
-                        />
-                        <span>
-                          {rankMap[row.rank_key]?.label ?? row.rank_label}
-                        </span>
-                      </Link>
+                      <span
+                        className={`inline-block h-4 w-4 rounded ${rankColor(row.rank_key)}`}
+                      />
+                      <span>
+                        {rankMap[row.rank_key]?.label ?? row.rank_label}
+                      </span>
                     </div>
                   </TableCell>
+                  {/* 先月 */}
                   <TableCell className="text-right">
-                    {row.previous_count}
+                    <Link
+                      href={`/rf-transition/customers?mode=previous&month=${encodeURIComponent(
+                        transition.previous_month_label,
+                      )}&rank=${encodeURIComponent(row.rank_key)}`}
+                      className="hover:underline"
+                    >
+                      {row.previous_count}
+                    </Link>
                   </TableCell>
+
+                  {/* 今月 */}
                   <TableCell className="text-right">
-                    {row.current_count}
+                    <Link
+                      href={`/rf-transition/customers?mode=current&month=${encodeURIComponent(
+                        transition.current_month_label,
+                      )}&rank=${encodeURIComponent(row.rank_key)}`}
+                      className="hover:underline"
+                    >
+                      {row.current_count}
+                    </Link>
                   </TableCell>
+                  {/* 増減人数 */}
                   <TableCell
                     className={`text-right ${diffTextColor(row.diff_count)}`}
                   >
-                    {formatDiffCount(row.diff_count)}
+                    <Link
+                      href={`/rf-transition/customers?mode=changed&month=${encodeURIComponent(
+                        transition.current_month_label,
+                      )}&rank=${encodeURIComponent(row.rank_key)}`}
+                      className="hover:underline"
+                    >
+                      {formatDiffCount(row.diff_count)}
+                    </Link>
                   </TableCell>
+                  {/* 増減率 */}
                   <TableCell
                     className={`text-right ${diffTextColor(row.diff_count)}`}
                   >
                     {formatDiffRate(row.diff_rate)}
                   </TableCell>
+                  {/* 当月構成比 */}
                   <TableCell className="text-right">
                     {row.current_percentage}%
                   </TableCell>

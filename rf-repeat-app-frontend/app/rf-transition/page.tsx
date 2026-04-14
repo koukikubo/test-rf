@@ -1,5 +1,7 @@
 import RfTransitionCard from "@/components/rf/rf-transition";
 import { buildRfKpis } from "@/lib/rf/build-rf-kpis";
+import RfRankMovementBuilder from "@/components/rf/movement_builder/rf_rank_movement_builder";
+import { RankMaster, RfMovementResponse } from "@/types/rf/movement_builder";
 
 type TransitionRow = {
   rank_key: string;
@@ -9,13 +11,6 @@ type TransitionRow = {
   diff_count: number;
   diff_rate: number | null;
   current_percentage: number;
-};
-
-type RankMaster = {
-  key: string;
-  label: string;
-  description: string;
-  order: number;
 };
 
 type RfTransitionResponse = {
@@ -37,24 +32,46 @@ async function getRfTransition(): Promise<RfTransitionResponse> {
   });
 
   if (!res.ok) {
-    throw new Error("RFMマトリクスの取得に失敗しました");
+    throw new Error("RF推移表の取得に失敗しました");
   }
 
   return (await res.json()) as RfTransitionResponse;
 }
 
+async function getRfMovement(): Promise<RfMovementResponse> {
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+  if (!baseUrl) {
+    throw new Error("NEXT_PUBLIC_API_BASE_URL が設定されていません");
+  }
+
+  const res = await fetch(`${baseUrl}/api/v1/rf_rank_fluctuations`, {
+    cache: "no-store",
+  });
+
+  if (!res.ok) {
+    throw new Error("RF変動表の取得に失敗しました");
+  }
+
+  return (await res.json()) as RfMovementResponse;
+}
+
 export default async function RfTransitionPage() {
-  const transition = await getRfTransition();
+  const [transition, movement] = await Promise.all([
+    getRfTransition(),
+    getRfMovement(),
+  ]);
+
   const kpis = buildRfKpis(transition);
-  const rankMaster = transition.rank_master;
 
   return (
-    <main className="p-6">
+    <main className="space-y-6 p-6">
       <RfTransitionCard
         transition={transition}
         kpis={kpis}
-        rankMaster={rankMaster}
+        rankMaster={transition.rank_master}
       />
+      <RfRankMovementBuilder movement={movement} />
     </main>
   );
 }

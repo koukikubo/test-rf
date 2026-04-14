@@ -9,11 +9,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 
-import {
-  buildRfDescription,
-  daysToYearsText,
-  formatVisitRange,
-} from "@/lib/rf-master-format";
+import { daysToYearsText, formatVisitRange } from "@/lib/rf-master-format";
 
 type RfMaster = {
   id: number;
@@ -93,15 +89,7 @@ export default async function RfMastersPage() {
                           rfMaster.max_visit_count,
                         )}
                       </TableCell>
-                      <TableCell className="whitespace-normal">
-                        {buildRfDescription({
-                          rank: rfMaster.rank,
-                          aggregation_period_days: rfMaster.aggregation_period_days,
-                          target_period_days: rfMaster.target_period_days,
-                          min_visit_count: rfMaster.min_visit_count,
-                          max_visit_count: rfMaster.max_visit_count,
-                        })}
-                      </TableCell>
+                      <TableCell className="whitespace-normal"></TableCell>
                       <TableCell>
                         <Link
                           href={`/setting/rf-masters/${rfMaster.id}/edit`}

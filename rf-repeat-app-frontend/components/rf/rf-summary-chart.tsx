@@ -57,10 +57,10 @@ function rankFillColor(rank: string): string {
       return "var(--chart-4)";
     case "E":
       return "var(--chart-5)";
-    case "F":
+    case "Z":
       return "hsl(var(--muted))";
     case "":
-    case "OUT":
+    case "対象外":
       return "hsl(var(--muted-foreground) / 0.35)";
     default:
       return "hsl(var(--muted))";
@@ -85,7 +85,7 @@ export default function RfSummaryChart({ ranks }: Props) {
       </CardHeader>
 
       <CardContent>
-        <ChartContainer config={chartConfig} className="min-h-[320px] w-full">
+        <ChartContainer config={chartConfig} className="min-h-80 w-full">
           <BarChart
             accessibilityLayer
             data={chartData}

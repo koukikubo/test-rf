@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2026_03_23_034040) do
+ActiveRecord::Schema[7.2].define(version: 2026_04_13_235716) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -43,16 +43,16 @@ ActiveRecord::Schema[7.2].define(version: 2026_03_23_034040) do
     t.index ["rank"], name: "index_rf_masters_on_rank", unique: true
   end
 
-  create_table "rf_scores", force: :cascade do |t|
+  create_table "rf_ranking_lists", force: :cascade do |t|
     t.bigint "customer_id", null: false
     t.integer "visit_count", default: 0, null: false
     t.datetime "last_visit_at"
     t.string "rank", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["customer_id"], name: "index_rf_scores_on_customer_id", unique: true
+    t.index ["customer_id"], name: "index_rf_ranking_lists_on_customer_id", unique: true
   end
 
   add_foreign_key "reservations", "customers"
-  add_foreign_key "rf_scores", "customers"
+  add_foreign_key "rf_ranking_lists", "customers"
 end

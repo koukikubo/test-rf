@@ -35,7 +35,7 @@ class RfRankRule
     # 来店履歴がない場合は空白（集計期間対象外）
     return build_result(
       rank: "N",
-      lifetime_visit_count: lifetime_visit_count,
+      visit_count: lifetime_visit_count,
       first_visit_at: first_visit_at,
       last_visit_at: last_visit_at,
       visits_within_3_months: 0,
@@ -87,7 +87,7 @@ class RfRankRule
     # 呼び出し元で使いやすいようにまとめて返す
     build_result(
       rank: rank,
-      lifetime_visit_count: lifetime_visit_count,
+      visit_count: lifetime_visit_count,
       first_visit_at: first_visit_at,
       last_visit_at: last_visit_at,
       visits_within_1_year: visits_within_1_year,
@@ -143,7 +143,7 @@ class RfRankRule
   # 戻り値整形
   def build_result(
       rank:,
-      lifetime_visit_count:,
+      visit_count:,
       first_visit_at:,
       last_visit_at:, 
       visits_within_1_year:,
@@ -155,7 +155,7 @@ class RfRankRule
     )
     {
       rank: rank,
-      lifetime_visit_count: lifetime_visit_count,
+      visit_count: visit_count,
       first_visit_at: first_visit_at,
       last_visit_at: last_visit_at,
       visits_within_1_year: visits_within_1_year,

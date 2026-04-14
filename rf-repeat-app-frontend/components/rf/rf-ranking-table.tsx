@@ -10,22 +10,22 @@ import {
 } from "@/components/ui/table";
 import { formatDate } from "@/lib/rf-master-format";
 
-type RfScore = {
-  id: number;
-  visit_count: number;
-  last_visit_at: string | null;
-  rank: string;
+type RfRankingRow = {
   customer: {
     id: number;
     name: string;
   };
+  id: number;
+  visit_count: number;
+  last_visit_at: string | null;
+  rank: string;
 };
 
 type Props = {
-  rfScores: RfScore[];
+  rfRankingRows: RfRankingRow[];
 };
 
-export default function RfRankingTable({ rfScores }: Props) {
+export default function RfRankingTable({ rfRankingRows }: Props) {
   return (
     <Card>
       <CardHeader>
@@ -33,7 +33,7 @@ export default function RfRankingTable({ rfScores }: Props) {
       </CardHeader>
 
       <CardContent>
-        {rfScores.length === 0 ? (
+        {rfRankingRows.length === 0 ? (
           <p>RFデータはありません</p>
         ) : (
           <div className="overflow-x-auto">
@@ -48,22 +48,20 @@ export default function RfRankingTable({ rfScores }: Props) {
               </TableHeader>
 
               <TableBody>
-                {rfScores.map((score) => (
-                  <TableRow key={score.customer.id}>
+                {rfRankingRows.map((row) => (
+                  <TableRow key={row.customer.id}>
                     <TableCell>
                       <Link
-                        href={`/customers/${score.customer.id}`}
+                        href={`/customers/${row.customer.id}`}
                         className="underline"
                       >
-                        {score.customer.name}
+                        {row.customer.name}
                       </Link>
                     </TableCell>
 
-                    <TableCell>{score.visit_count}</TableCell>
-                    <TableCell>{formatDate(score.last_visit_at)}</TableCell>
-                    <TableCell>
-                      {score.rank === "OUT" ? "" : score.rank}
-                    </TableCell>
+                    <TableCell>{row.visit_count}</TableCell>
+                    <TableCell>{formatDate(row.last_visit_at)}</TableCell>
+                    <TableCell>{row.rank === "OUT" ? "" : row.rank}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
