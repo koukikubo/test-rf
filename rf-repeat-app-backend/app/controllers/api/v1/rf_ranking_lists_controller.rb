@@ -11,7 +11,7 @@ class Api::V1::RfRankingListsController < ApplicationController
         {
         id: customer.id,
         visit_count: result[:visit_count],
-        last_visit_at: result[:last_visit_at],
+        last_visit_at: result[:lifetime_visit_count],
         rank: result[:rank],
         customer: {
           id: customer.id,

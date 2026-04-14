@@ -22,15 +22,20 @@ class Api::V1::CustomersController < ApplicationController
   end
 
   def show
-    customer = Customer.includes(:rf_score, :reservations).find(params[:id])
+    customer = Customer.includes(:reservations).find(params[:id])
+
+    rf_result = RfRankRule.call(
+    reservations: customer.reservations,
+    base_date: Time.current
+  )
 
     render json: {
       id: customer.id,
       name: customer.name,
-      rf_score: customer.rf_score && {
-        visit_count: customer.rf_score.visit_count,
-        last_visit_at: customer.rf_score.last_visit_at,
-        rank: customer.rf_score.rank
+      rf_score: {
+        visit_count: rf_result[:visit_count],
+        last_visit_at: rf_result[:last_visit_at],
+        rank: rf_result[:rank]
       },
       reservations: customer.reservations.order(visited_at: :desc).map { |reservation|
         {

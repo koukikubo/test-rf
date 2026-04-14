@@ -1,22 +1,30 @@
 class RfRankSummary
   
-  ACTIVE_RANKS = %w[A B C D E].freeze
-  DISPLAY_RANKS = %w[A B C D E Z OUT].freeze
+  ACTIVE_RANKS = RfRankMaster.keys.freeze
+  DISPLAY_RANKS = %w[A B C D E].freeze
 
-  def self.call
-    new.call
+  def self.call(base_date: Time.current.to_date)
+    new.call(base_date: base_date)
   end
 
-  def call
-    # rankごとに rf_scores を集計した Hashを返す
-    grouped = RfScore.group(:rank).count
+
+  def call(base_date:)
+    grouped = Hash.new(0)
+
+    Customer.includes(:reservations).find_each do |customer|
+      result = RfRankRule.call(
+        reservations: customer.reservations,
+        base_date: base_date
+      )
+      grouped[result[:rank]] += 1
+    end
 
     {
       # DISPLAY_RANKS の順番で、ランクごとの件数を配列で返す
       ranks: build_ranks(grouped),
       active_total: ACTIVE_RANKS.sum { |rank| grouped[rank].to_i },
       rank_out_total: grouped["Z"].to_i,
-      out_of_scope_total: grouped["OUT"].to_i,
+      out_of_scope_total: grouped["N"].to_i,
       all_customers_total: Customer.count
     }
   end
@@ -28,6 +36,7 @@ class RfRankSummary
     DISPLAY_RANKS.map do |rank|
       {
         rank: rank,
+        label: RfRankMaster.label_for(rank),
         count: grouped[rank].to_i
       }
     end
