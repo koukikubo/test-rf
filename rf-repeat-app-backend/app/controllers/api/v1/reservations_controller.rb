@@ -18,7 +18,6 @@ class Api::V1::ReservationsController < ApplicationController
     reservation = Reservation.new(reservation_params)
 
     if reservation.save
-      RfScoreUpdateJob.perform_later(reservation.customer_id)
       render json: reservation, status: :created
     else
       render json: { errors: reservation.errors.full_messages }, status: :unprocessable_entity
@@ -41,8 +40,6 @@ class Api::V1::ReservationsController < ApplicationController
         RfScoreUpdateJob.perform_later(old_customer_id)
       end
 
-      # 更新後の顧客についても再計算する
-      RfScoreUpdateJob.perform_later(reservation.customer_id)
       render json: reservation, status: :ok
     else
       render json: { errors: reservation.errors.full_messages }, status: :unprocessable_entity
@@ -56,7 +53,6 @@ class Api::V1::ReservationsController < ApplicationController
     customer_id = reservation.customer_id
 
     if reservation.destroy
-      RfScoreUpdateJob.perform_later(customer_id)
       render json: { message: "Reservation deleted successfully" }, status: :ok
     else
       render json: { errors: reservation.errors.full_messages }, status: :unprocessable_entity

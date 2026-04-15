@@ -14,7 +14,7 @@ RSpec.describe RfTransitionBuilder, type: :service do
 
     before do
       Reservation.delete_all
-      RfScore.delete_all
+      RfRankingList.delete_all
       Customer.delete_all
     end
 

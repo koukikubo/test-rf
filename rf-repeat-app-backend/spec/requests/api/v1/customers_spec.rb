@@ -67,14 +67,6 @@ RSpec.describe "Api::V1::Customers", type: :request do
     let!(:customer) { Customer.create!(name: "大阪 一太郎") }
     let!(:reservation1) { Reservation.create!(customer: customer, visited_at: 1.day.ago) }
     let!(:reservation2) { Reservation.create!(customer: customer, visited_at: Time.current) }
-    let!(:rf_score) do
-      RfScore.create!(
-        customer: customer,
-        visit_count: 5,
-        last_visit_at: Time.current,
-        rank: "C"
-      )
-    end
 
     it "顧客の詳細情報を取得できる" do
       get "/api/v1/customers/#{customer.id}"
@@ -84,7 +76,7 @@ RSpec.describe "Api::V1::Customers", type: :request do
       json = JSON.parse(response.body)
 
       expect(json["name"]).to eq("大阪 一太郎")
-      expect(json["rf_score"]["visit_count"]).to eq(5)
+      expect(json["rf_score"]["visit_count"]).to eq(2)
       expect(json["rf_score"]["rank"]).to eq("C")
       reservation_ids = json["reservations"].map { |reservation| reservation["id"] }
       expect(reservation_ids).to include(reservation1.id, reservation2.id)
