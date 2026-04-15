@@ -1,6 +1,6 @@
 class RfRankSummary
   
-  ACTIVE_RANKS = RfRankMaster.keys.freeze
+  ACTIVE_RANKS = %w[A B C D E].freeze
   DISPLAY_RANKS = %w[A B C D E].freeze
 
   def self.call(base_date: Time.current.to_date)

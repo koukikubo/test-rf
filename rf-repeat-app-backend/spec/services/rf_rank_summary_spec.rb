@@ -1,36 +1,57 @@
 require "rails_helper"
 
 RSpec.describe RfRankSummary, type: :service do
+  include ActiveSupport::Testing::TimeHelpers
+
   describe ".call" do
+    around do |example|
+      travel_to(Time.zone.parse("2026-03-15 10:00:00")) do
+        example.run
+      end
+    end
+
     before do
+      Reservation.delete_all
+      RfRankingList.delete_all
       Customer.delete_all
-      RfScore.delete_all
 
       customer_a = Customer.create!(name: "顧客A")
       customer_b = Customer.create!(name: "顧客B")
       customer_c = Customer.create!(name: "顧客C")
 
-      RfScore.create!(customer: customer_a, visit_count: 5, last_visit_at: Time.current, rank: "A")
-      RfScore.create!(customer: customer_b, visit_count: 3, last_visit_at: Time.current, rank: "B")
-      RfScore.create!(customer: customer_c, visit_count: 1, last_visit_at: Time.current, rank: "Z")
+      6.times do |i|
+        Reservation.create!(
+          customer: customer_a,
+          visited_at: Time.zone.parse("2026-01-01 12:00:00") + i.days
+        )
+      end
+
+      4.times do |i|
+        Reservation.create!(
+          customer: customer_b,
+          visited_at: Time.zone.parse("2025-11-01 12:00:00") + i.days
+        )
+      end
+
+      Reservation.create!(
+        customer: customer_c,
+        visited_at: Time.zone.parse("2021-05-10 12:00:00")
+      )
     end
 
     it "ランク別人数と合計値を返す" do
-      # 集計サービスを実行する
       result = described_class.call
-      # ランク別配列にA,B,Zが含まれていることを確認する。
-      expect(result[:ranks]).to include({ rank: "A", count: 1 })
-      expect(result[:ranks]).to include({ rank: "B", count: 1 })
-      expect(result[:ranks]).to include({ rank: "Z", count: 1 })
+      a_rank = result[:ranks].find { |rank| rank[:rank] == "A" }
+      b_rank = result[:ranks].find { |rank| rank[:rank] == "B" }
 
-      # A〜Eランクの合計数、今回はZを除いて2名
-      expect(result[:active_total]).to eq(2)
-      # ランク外は1名
-      expect(result[:rank_out_total]).to eq(1)
-      # 集計期間対象外は0名
-      expect(result[:out_of_scope_total]).to eq(0)
-      # RFランクがついている顧客集計、今回は3名作成しているため。
-      expect(result[:all_customers_total]).to eq(3)
+      aggregate_failures do
+        expect(a_rank[:count]).to eq(1)
+        expect(b_rank[:count]).to eq(1)
+        expect(result[:active_total]).to eq(2)
+        expect(result[:rank_out_total]).to eq(1)
+        expect(result[:out_of_scope_total]).to eq(0)
+        expect(result[:all_customers_total]).to eq(3)
+      end
     end
   end
 end

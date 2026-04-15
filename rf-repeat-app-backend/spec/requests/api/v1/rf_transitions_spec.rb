@@ -13,7 +13,7 @@ RSpec.describe "Api::V1::RfTransitions", type: :request do
 
   before do
     Reservation.delete_all
-    RfScore.delete_all
+    RfRankingList.delete_all
     Customer.delete_all
   end
 

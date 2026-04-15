@@ -19,17 +19,15 @@ class RfRankCalculator
 
     update_rf_score(
       customer, 
-      result[:lifetime_visit_count],
+      result[:visit_count],
       result[:last_visit_at],
       result[:rank]
       )
   end
 
   def self.update_rf_score(customer, visit_count, last_visit_at, rank)
-    # rf_scoreが存在しない場合は新規作成、存在する場合は更新
-    rf_score = customer.rf_score || customer.build_rf_score
-    # rf_scoreを更新
-    rf_score.update!(
+    rf_ranking_list = customer.rf_ranking_list || customer.build_rf_ranking_list
+    rf_ranking_list.update!(
       visit_count: visit_count,
       last_visit_at: last_visit_at,
       rank: rank
