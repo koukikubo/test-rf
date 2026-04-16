@@ -6,20 +6,20 @@ class RfRankMovementBuilder
   end
 
   def call
-    current_base_month = base_month
-    current_base_date = current_base_month.end_of_month
-    previous_base_date = (current_base_month - 1.month).end_of_month
-
-    current_month_label = current_base_month.strftime("%Y年%m月")
-    previous_month_label = (current_base_month - 1.month).strftime("%Y年%m月")
+    base_date = Rf::BaseDate.resolve(nil)
+    current_base_date = base_date
+    previous_base_date = Rf::BaseDate.previous_month(base_date)
+    current_month_label = current_base_date.strftime("%Y年%m月")
+    previous_month_label = (current_base_date - 1.month).strftime("%Y年%m月")
 
     matrix = build_empty_matrix
     customer_ids_matrix = build_empty_customer_ids_matrix
 
     Customer.includes(:reservations).find_each do |customer|
-      customer_reservations = customer.reservations.select do |reservation|
-        reservation.visited_at.present?
-      end
+      customer_reservations = Rf::ReservationFilter.call(
+        customer.reservations,
+        current_base_date
+      )
 
       previous_result = RfRankRule.call(
         reservations: customer_reservations,

@@ -9,12 +9,13 @@ class RfRankCalculator
   # 顧客のRFスコアを更新する関数
   def self.update_customer(customer)
     reservations = Reservation.where(customer_id: customer.id)
+    base_date = Rf::BaseDate.resolve(nil)
 
     # 共通ルールに判定を委譲する
     # ここで rank / 最終来店日 / 直近1年件数 などをまとめて取得する
     result = RfRankRule.call(
       reservations: reservations,
-      base_date: Time.current
+      base_date: base_date  
     )
 
     update_rf_score(

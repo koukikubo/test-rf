@@ -3,12 +3,13 @@ class RfRankSummary
   ACTIVE_RANKS = %w[A B C D E].freeze
   DISPLAY_RANKS = %w[A B C D E].freeze
 
-  def self.call(base_date: Time.current.to_date)
+  def call(base_date: null)
     new.call(base_date: base_date)
   end
 
+  def call(base_date: nil)
+    base_date = Rf::BaseDate.resolve(base_date)
 
-  def call(base_date:)
     grouped = Hash.new(0)
 
     Customer.includes(:reservations).find_each do |customer|
@@ -32,7 +33,6 @@ class RfRankSummary
   private
 
   def build_ranks(grouped)
-    # 来店回数がない場合は、nilではなく０を返す。
     DISPLAY_RANKS.map do |rank|
       {
         rank: rank,

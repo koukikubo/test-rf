@@ -24,13 +24,11 @@ class RfRankRule
     normalized_base_date = base_date.to_date
     range_end = normalized_base_date.end_of_day
 
-    valid_reservations = reservations.select { |reservation| reservation.visited_at.present?}
-    sorted_reservations = valid_reservations.sort_by(&:visited_at)
-    
+    valid_reservations = Rf::ReservationFilter.call(reservations, base_date)    
     # 全期間の来店回数
-    lifetime_visit_count = sorted_reservations.count
-    first_visit_at = sorted_reservations.first&.visited_at
-    last_visit_at = sorted_reservations.last&.visited_at
+    lifetime_visit_count = valid_reservations.count
+    first_visit_at = valid_reservations.first&.visited_at
+    last_visit_at = valid_reservations.last&.visited_at
 
     # 来店履歴がない場合は空白（集計期間対象外）
     return build_result(
@@ -55,12 +53,12 @@ class RfRankRule
     five_years_start = normalized_base_date - AGGREGATION_PERIOD_DAYS.days
 
     # 直近1年以内の来店回数
-    visits_within_1_year = reservations.count do |reservation|
-      reservation.visited_at >= one_year_start && reservation.visited_at <= range_end
+    visits_within_1_year = valid_reservations.count do |reservation|
+        reservation.visited_at >= one_year_start && reservation.visited_at <= range_end
     end
 
     # 直近3ヶ月以内の来店回数
-    visits_within_3_months = reservations.count do |reservation|
+    visits_within_3_months = valid_reservations.count do |reservation|
       reservation.visited_at >= three_months_start && reservation.visited_at <= range_end
     end
 
