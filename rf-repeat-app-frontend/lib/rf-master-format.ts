@@ -48,7 +48,7 @@ export function rankLabel(rank: string): string {
     case "E":
       return "E";
     case "Z":
-      return "ランク外";
+      return "Z";
     case "対象外":
       return "集計期間対象外";
     default:
