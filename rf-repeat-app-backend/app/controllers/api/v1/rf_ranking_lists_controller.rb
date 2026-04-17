@@ -4,7 +4,7 @@ class Api::V1::RfRankingListsController < ApplicationController
 
     # RfRankingListモデルからデータを取得
     rows = Customer.includes(:reservations).map do |customer|
-      result = RfRankRule.call(
+      result = Rf::Calculators::RankRule.call(
         reservations: customer.reservations,
         base_date: base_date
         ) 
