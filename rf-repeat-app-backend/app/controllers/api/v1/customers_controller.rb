@@ -24,7 +24,7 @@ class Api::V1::CustomersController < ApplicationController
   def show
     customer = Customer.includes(:reservations).find(params[:id])
 
-    rf_result = RfRankRule.call(
+    rf_result = Rf::Calculators::RankRule.call(
     reservations: customer.reservations,
     base_date: Time.current
   )

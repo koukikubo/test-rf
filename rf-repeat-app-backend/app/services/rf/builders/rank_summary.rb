@@ -22,14 +22,11 @@ module Rf
 
         {
           ranks: build_ranks(grouped),
-          active_total: RfRankMaster.all.sum do |rank|
-            key = rank[:key]
-            next 0 if ["Z", "N"].include?(key)
-
+          active_total: RfRankMaster.active_keys.sum do |key|
             grouped[key].to_i
           end,
-          rank_out_total: grouped["Z"].to_i,
-          out_of_scope_total: grouped["N"].to_i,
+          rank_out_total: grouped[RfRankMaster.rank_out_key].to_i,
+          out_of_scope_total: grouped[RfRankMaster.out_of_scope_key].to_i,  
           all_customers_total: Customer.count
         }
       end
