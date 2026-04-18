@@ -49,8 +49,8 @@ export function rankLabel(rank: string): string {
       return "E";
     case "Z":
       return "Z";
-    case "対象外":
-      return "集計期間対象外";
+    case "N":
+      return "N";
     default:
       return rank;
   }
@@ -72,19 +72,19 @@ export function formatDate(dateString: string | null) {
   return date.toLocaleDateString("ja-JP");
 }
 
-export function rowLabel(row: string): string {
-  switch (row) {
-    case "recent":
-      return "1年以内";
-    case "middle":
-      return "1年以上3年以内";
-    case "old":
-      return "3年以上5年以内";
-    case "inactive":
-      return "5年以上10年以内";
-    case "out_of_scope":
-      return "対象外";
-    default:
-      return "未設定";
-  }
-}
+// export function rowLabel(row: string): string {
+//   switch (row) {
+//     case "recent":
+//       return "1年以内";
+//     case "middle":
+//       return "1年以上3年以内";
+//     case "old":
+//       return "3年以上5年以内";
+//     case "inactive":
+//       return "5年以上10年以内";
+//     case "out_of_scope":
+//       return "対象外";
+//     default:
+//       return "未設定";
+//   }
+// }

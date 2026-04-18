@@ -37,7 +37,7 @@ class RfRankMaster
     },
     {
       key: "N",
-      label: "対象外",
+      label: "Nランク",
       description: "来店履歴がない顧客です。",
       order: 7
     }
@@ -57,5 +57,17 @@ class RfRankMaster
 
   def self.description_for(key)
     RANKS.find { |rank| rank[:key] == key }&.dig(:description)
+  end
+
+  def self.active_keys
+    %w[A B C D E]
+  end
+
+  def self.rank_out_key
+    "Z"
+  end
+
+  def self.out_of_scope_key
+    "N"
   end
 end
