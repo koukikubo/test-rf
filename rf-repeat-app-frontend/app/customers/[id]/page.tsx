@@ -7,7 +7,7 @@ type Reservation = {
   visited_at: string;
 };
 
-type RfScore = {
+type RfRankingList = {
   visit_count: number;
   last_visit_at: string | null;
   rank: string;
@@ -16,7 +16,7 @@ type RfScore = {
 type CustomerDetail = {
   id: number;
   name: string;
-  rf_score: RfScore | null;
+  rf_ranking_list: RfRankingList | null;
   reservations: Reservation[];
 };
 
@@ -52,7 +52,7 @@ export default async function CustomerDetailPage({
 
       <CustomerBasicInfo id={customer.id} name={customer.name} />
 
-      <CustomerRfInfo rfScore={customer.rf_score} />
+      <CustomerRfInfo rf_ranking_list={customer.rf_ranking_list} />
 
       <CustomerReservationsTable reservations={customer.reservations} />
     </main>

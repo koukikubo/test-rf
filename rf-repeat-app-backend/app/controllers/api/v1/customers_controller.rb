@@ -32,7 +32,7 @@ class Api::V1::CustomersController < ApplicationController
     render json: {
       id: customer.id,
       name: customer.name,
-      rf_score: {
+      rf_ranking_list: {
         visit_count: rf_result[:visit_count],
         last_visit_at: rf_result[:last_visit_at],
         rank: rf_result[:rank]
