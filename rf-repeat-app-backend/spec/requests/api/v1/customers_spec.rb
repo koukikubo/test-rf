@@ -76,8 +76,8 @@ RSpec.describe "Api::V1::Customers", type: :request do
       json = JSON.parse(response.body)
 
       expect(json["name"]).to eq("大阪 一太郎")
-      expect(json["rf_score"]["visit_count"]).to eq(2)
-      expect(json["rf_score"]["rank"]).to eq("C")
+      expect(json["rf_ranking_list"]["visit_count"]).to eq(2)
+      expect(json["rf_ranking_list"]["rank"]).to eq("C")
       reservation_ids = json["reservations"].map { |reservation| reservation["id"] }
       expect(reservation_ids).to include(reservation1.id, reservation2.id)
     end
