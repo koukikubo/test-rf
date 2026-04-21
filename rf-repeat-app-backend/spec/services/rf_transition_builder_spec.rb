@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe RfTransitionBuilder, type: :service do
+RSpec.describe Rf::Builders::TransitionBuilder, type: :service do
   include ActiveSupport::Testing::TimeHelpers
 
   describe ".call" do
