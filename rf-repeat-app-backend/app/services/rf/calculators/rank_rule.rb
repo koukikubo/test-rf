@@ -27,10 +27,10 @@ module Rf
         range_end = normalized_base_date.end_of_day
 
         valid_reservations = Rf::Shared::ReservationFilter.call(reservations, base_date)    
-        # 全期間の来店回数
         lifetime_visit_count = valid_reservations.count
-        first_visit_at = valid_reservations.first&.visited_at
-        last_visit_at = valid_reservations.last&.visited_at
+
+        first_visit_at = valid_reservations.min_by(&:visited_at)&.visited_at
+        last_visit_at  = valid_reservations.max_by(&:visited_at)&.visited_at
 
         # 来店履歴がない場合は空白（集計期間対象外）
         return build_result(

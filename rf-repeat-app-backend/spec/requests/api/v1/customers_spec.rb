@@ -64,9 +64,17 @@ RSpec.describe "Api::V1::Customers", type: :request do
   end
   # 正常系-顧客詳細APIのリクエストテスト
   describe "GET /api/v1/customers/:id" do
+    include ActiveSupport::Testing::TimeHelpers
+
+    around do |example|
+      travel_to(Time.zone.parse("2026-04-21 10:00:00")) do
+        example.run
+      end
+    end
+
     let!(:customer) { Customer.create!(name: "大阪 一太郎") }
-    let!(:reservation1) { Reservation.create!(customer: customer, visited_at: 1.day.ago) }
-    let!(:reservation2) { Reservation.create!(customer: customer, visited_at: Time.current) }
+    let!(:reservation1) { Reservation.create!(customer: customer, visited_at: Time.zone.parse("2026-03-10 12:00:00")) }
+    let!(:reservation2) { Reservation.create!(customer: customer, visited_at: Time.zone.parse("2026-03-20 12:00:00")) }
 
     it "顧客の詳細情報を取得できる" do
       get "/api/v1/customers/#{customer.id}"
