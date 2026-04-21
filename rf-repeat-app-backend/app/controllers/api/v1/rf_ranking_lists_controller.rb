@@ -1,7 +1,7 @@
 class Api::V1::RfRankingListsController < ApplicationController
   def index
-    base_date = params[:base_date].present? ? Date.parse(params[:base_date]) : Time.current.to_date
-
+    base_date = Rf::Shared::BaseDate.resolve(params[:base_date])
+    
     # RfRankingListモデルからデータを取得
     rows = Customer.includes(:reservations).map do |customer|
       result = Rf::Calculators::RankRule.call(

@@ -26,7 +26,7 @@ class Api::V1::CustomersController < ApplicationController
 
     rf_result = Rf::Calculators::RankRule.call(
     reservations: customer.reservations,
-    base_date: Time.current
+    base_date: Rf::Shared::BaseDate.resolve(params[:base_date])
   )
 
     render json: {
