@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe RfRankSummary, type: :service do
+RSpec.describe Rf::Builders::RankSummary, type: :service do
   include ActiveSupport::Testing::TimeHelpers
 
   describe ".call" do

@@ -5,6 +5,6 @@ class RfScoreUpdateJob < ApplicationJob
   # 予約された時間に実行されるジョブスイッチ
   def perform(customer_id)
     customer = Customer.find(customer_id)
-    RfRankCalculator.update_customer(customer)
+    Rf::Calculators::RankCalculator.update_customer(customer)
   end
 end

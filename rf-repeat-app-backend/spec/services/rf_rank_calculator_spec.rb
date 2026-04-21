@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe RfRankCalculator, type: :service do
+RSpec.describe Rf::Calculators::RankCalculator, type: :service do
   include ActiveSupport::Testing::TimeHelpers
   describe ".update_customer" do
     around do |example|
