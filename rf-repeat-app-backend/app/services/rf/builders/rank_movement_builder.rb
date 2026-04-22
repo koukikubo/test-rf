@@ -124,10 +124,6 @@ module Rf
 
       private
 
-      def base_month
-        Time.current.prev_month
-      end
-
       def build_empty_matrix
         ranks.each_with_object({}) do |from_rank, outer_hash|
           outer_hash[from_rank[:key]] = ranks.each_with_object({}) do |to_rank, inner_hash|

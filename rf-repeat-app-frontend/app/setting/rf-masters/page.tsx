@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -65,8 +64,6 @@ export default async function RfMastersPage() {
                     <TableHead>集計期間</TableHead>
                     <TableHead>判定対象期間</TableHead>
                     <TableHead>来店回数条件</TableHead>
-                    <TableHead>条件の意味</TableHead>
-                    <TableHead>操作</TableHead>
                   </TableRow>
                 </TableHeader>
 
@@ -88,15 +85,6 @@ export default async function RfMastersPage() {
                           rfMaster.min_visit_count,
                           rfMaster.max_visit_count,
                         )}
-                      </TableCell>
-                      <TableCell className="whitespace-normal"></TableCell>
-                      <TableCell>
-                        <Link
-                          href={`/setting/rf-masters/${rfMaster.id}/edit`}
-                          className="underline"
-                        >
-                          編集
-                        </Link>
                       </TableCell>
                     </TableRow>
                   ))}
