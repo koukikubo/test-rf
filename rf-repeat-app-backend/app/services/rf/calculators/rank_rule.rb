@@ -2,17 +2,13 @@ module Rf
   module Calculators
     class RankRule
       # 集計期間: 5年
-      AGGREGATION_PERIOD_DAYS = 1825
+      AGGREGATION_PERIOD_DAYS = RfRankMaster::AGGREGATION_PERIOD_DAYS
 
       # 判定用期間
-      THREE_MONTHS_DAYS = 90
-      SIX_MONTHS_DAYS   = 180
-      ONE_YEAR_DAYS = 365
-      TWO_YEARS_DAYS = 730
-
-      def self.aggregation_period
-        AGGREGATION_PERIOD_DAYS.days
-      end
+      THREE_MONTHS_DAYS = RfRankMaster::THREE_MONTHS_DAYS
+      SIX_MONTHS_DAYS   = RfRankMaster::SIX_MONTHS_DAYS
+      ONE_YEAR_DAYS = RfRankMaster::ONE_YEAR_DAYS
+      TWO_YEARS_DAYS = RfRankMaster::TWO_YEARS_DAYS
 
       # クラスメソッドで呼び出せるようにする
       # 例: RfRankRule.call(reservations: reservations, base_date: Time.current)
@@ -170,4 +166,3 @@ module Rf
     end
   end
 end
-

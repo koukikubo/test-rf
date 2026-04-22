@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -18,6 +17,7 @@ type RfMaster = {
   max_visit_count: number | null;
   aggregation_period_days: number;
   target_period_days: number;
+  description: string;
   position: number;
   created_at: string;
   updated_at: string;
@@ -63,10 +63,8 @@ export default async function RfMastersPage() {
                   <TableRow>
                     <TableHead>ランク</TableHead>
                     <TableHead>集計期間</TableHead>
-                    <TableHead>判定対象期間</TableHead>
+                    <TableHead>判定条件</TableHead>
                     <TableHead>来店回数条件</TableHead>
-                    <TableHead>条件の意味</TableHead>
-                    <TableHead>操作</TableHead>
                   </TableRow>
                 </TableHeader>
 
@@ -79,8 +77,7 @@ export default async function RfMastersPage() {
                         {daysToYearsText(rfMaster.aggregation_period_days)}
                       </TableCell>
                       <TableCell>
-                        判定対象期間:
-                        {daysToYearsText(rfMaster.target_period_days)}以内
+                        {rfMaster.description}
                       </TableCell>
                       <TableCell>
                         来店回数:
@@ -88,15 +85,6 @@ export default async function RfMastersPage() {
                           rfMaster.min_visit_count,
                           rfMaster.max_visit_count,
                         )}
-                      </TableCell>
-                      <TableCell className="whitespace-normal"></TableCell>
-                      <TableCell>
-                        <Link
-                          href={`/setting/rf-masters/${rfMaster.id}/edit`}
-                          className="underline"
-                        >
-                          編集
-                        </Link>
                       </TableCell>
                     </TableRow>
                   ))}

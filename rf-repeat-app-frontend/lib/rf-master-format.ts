@@ -16,19 +16,15 @@ export function formatVisitRange(min: number, max: number | null) {
   return `${min}回〜${max}回`;
 }
 
-export function formatTargetPeriod(days: number) {
-  return `直近${daysToYearsText(days)}以内`;
-}
-
 // ランク色のフォーマット
-export const RANK_COLOR_MAP: Record<string, string> = {
+const RANK_COLOR_MAP: Record<string, string> = {
   A: "bg-green-600",
   B: "bg-green-300",
   C: "bg-blue-300",
   D: "bg-yellow-300",
   E: "bg-orange-300",
   Z: "bg-gray-300",
-  対象外: "bg-slate-300",
+  N: "bg-slate-300",
 };
 
 export function rankColor(rank: string): string {
@@ -71,20 +67,3 @@ export function formatDate(dateString: string | null) {
   const date = new Date(dateString);
   return date.toLocaleDateString("ja-JP");
 }
-
-// export function rowLabel(row: string): string {
-//   switch (row) {
-//     case "recent":
-//       return "1年以内";
-//     case "middle":
-//       return "1年以上3年以内";
-//     case "old":
-//       return "3年以上5年以内";
-//     case "inactive":
-//       return "5年以上10年以内";
-//     case "out_of_scope":
-//       return "対象外";
-//     default:
-//       return "未設定";
-//   }
-// }
